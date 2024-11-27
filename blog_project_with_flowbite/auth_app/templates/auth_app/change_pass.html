@@ -1,0 +1,60 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recover Password - Zenset</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+    <script defer src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script defer src="{% static 'js/form_handler.js' %}"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <section class="bg-gray-50">
+        <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+            <a href="{% url 'blog:index' %}" class="flex items-center mb-6 text-2xl font-semibold text-gray-900">
+                <img class="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="logo">
+                Zenset
+            </a>
+            <div class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
+                <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+                    <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
+                        Reset your password
+                    </h1>
+                    <form class="py-4 md:py-5" action="{% url 'auth:change_pass' %}" method="post">
+                        {% csrf_token %}
+                        <div class="space-y-4">
+                            <div>
+                                <label for="old_pass" class="block mb-2 text-sm font-medium text-gray-900">Current Password</label>
+                                <input type="password" name="old_pass" id="old_pass" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                            </div>
+                            <div>
+                                <label for="new_pass" class="block mb-2 text-sm font-medium text-gray-900">New Password</label>
+                                <input type="password" name="new_pass" id="new_pass" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                            </div>
+                            <div>
+                                <label for="new_pass_2" class="block mb-2 text-sm font-medium text-gray-900">Confirm New Password</label>
+                                <input type="password" name="new_pass_2" id="new_pass_2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="text-white w-max inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center w-full mt-4 disabled:opacity-50 disabled:cursor-not-allowed">
+                            Update Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% if messages %}
+        {% include 'components/messages.html' %}
+    {% endif %}
+</body>
+</html>

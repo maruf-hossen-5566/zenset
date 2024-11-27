@@ -1,0 +1,91 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Zenset</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+    <script defer src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script defer src="{% static 'js/form_handler.js' %}"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <section class="bg-gray-50">
+        <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+            <a href="{% url 'blog:index' %}" class="flex items-center mb-6 text-2xl font-semibold text-gray-900">
+                <img class="w-8 h-8 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="logo">
+                Zenset    
+            </a>
+            <div class="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0">
+                <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+                    <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl">
+                        Create an account
+                    </h1>
+                    <form class="space-y-4 md:space-y-6" action="{% url 'auth:register' %}" method="POST">
+                        {% csrf_token %}
+                        <div>
+                            <label for="full_name" class="block mb-2 text-sm font-medium text-gray-900">Full Name</label>
+                            <input type="text" name="full_name" id="full_name" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="John Doe" required>
+                        </div>
+                        <div>
+                            <label for="username" class="block mb-2 text-sm font-medium text-gray-900">Username</label>
+                            <input type="text" name="username" id="username" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="johndoe" required="">
+                        </div>
+                        <div>
+                            <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Email address</label>
+                            <input type="email" name="email" id="email" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5" placeholder="name@company.com" required="">
+                        </div>
+                        <!-- Password -->
+                        <div class="mb-5">
+                            <label for="id_password1" class="flex items-center justify-start mb-2 text-sm font-medium text-gray-900">
+                                Password
+                                <button data-tooltip-target="password-tooltip" type="button" class="ml-1.5 text-gray-400 hover:text-gray-500">
+                                    <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                                    </svg>
+                                    <span class="sr-only">Show password information</span>
+                                </button>
+                            </label>
+                            <input type="password" id="id_password1" name="password1" autocomplete="new-password" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                            <div id="password-tooltip" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 tooltip">
+                                <ul class="list-disc pl-5 space-y-1">
+                                    <li>At least 8 characters long</li>
+                                    <li>Contains uppercase and lowercase letters</li>
+                                    <li>Includes numbers and special characters</li>
+                                    <li>Not similar to personal information</li>
+                                    <li>Not a commonly used password</li>
+                                </ul>
+                                <div class="tooltip-arrow" data-popper-arrow></div>
+                            </div>
+                        </div>
+
+                        <!-- Password Confirmation -->
+                        <div class="mb-5">
+                            <label for="id_password2" class="block mb-2 text-sm font-medium text-gray-900">
+                                Password confirmation
+                            </label>
+                            <input type="password" id="id_password2" name="password2" autocomplete="new-password" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                        </div>
+                        <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center disabled:opacity-50 disabled:cursor-not-allowed">Create an account</button>
+                        <p class="text-sm font-light text-gray-500">
+                            Already have an account? <a href="{% url 'auth:login' %}" class="font-medium text-blue-600 hover:underline">Login here</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {% if messages %}
+        {% include 'components/messages.html' %}
+    {% endif %}
+</body>
+</html>

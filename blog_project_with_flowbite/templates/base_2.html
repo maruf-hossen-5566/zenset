@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="w-full px-4 py-6 mx-auto">
+    <div class="max-w-2xl w-full mx-auto pb-16">
+        <!-- Header -->
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-900">Notifications</h1>
+        </div>
+
+        <!-- Notification Filters -->
+        <div class="w-full mb-4">
+            <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 border-b border-gray-200">
+                <li class="me-2">
+                    <a href="?filter=all" class="inline-flex items-center justify-center p-4 {% if filter == 'all' or not filter %}text-blue-600 border-b-2 border-blue-600{% else %}border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300{% endif %} rounded-t-lg group">
+                        All
+                    </a>
+                </li>
+                <li class="me-2">
+                    <a href="?filter=like" class="inline-flex items-center justify-center p-4 {% if filter == 'like' %}text-blue-600 border-b-2 border-blue-600{% else %}border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300{% endif %} rounded-t-lg group">
+                        Likes
+                    </a>
+                </li>
+                <li class="me-2">
+                    <a href="?filter=comment" class="inline-flex items-center justify-center p-4 {% if filter == 'comment' %}text-blue-600 border-b-2 border-blue-600{% else %}border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300{% endif %} rounded-t-lg group">
+                        Comments
+                    </a>
+                </li>
+                <li class="me-2">
+                    <a href="?filter=follow" class="inline-flex items-center justify-center p-4 {% if filter == 'follow' %}text-blue-600 border-b-2 border-blue-600{% else %}border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300{% endif %} rounded-t-lg group">
+                        Follows
+                    </a>
+                </li>
+                <li class="me-2">
+                    <a href="?filter=other" class="inline-flex items-center justify-center p-4 {% if filter == 'other' %}text-blue-600 border-b-2 border-blue-600{% else %}border-b-2 border-transparent hover:text-gray-600 hover:border-gray-300{% endif %} rounded-t-lg group">
+                        Others
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="flow-root mt-2">
+            <ul role="list" class="divide-y divide-gray-200 rounded-lg border border-gray-200">
+                {% for notification in notifications %}
+                    <li class="py-3 px-4 {% if not notification.read %}bg-blue-50{% endif %} hover:bg-gray-50">
+                        <div class="flex items-center space-x-4">
+                            <!-- User Avatar -->
+                            <div class="flex-shrink-0">
+                                <img class="h-10 w-10 rounded-full border-2 border-white shadow-sm" 
+                                     src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop" 
+                                     alt="User avatar">
+                            </div>
+                            
+                            <!-- Notification Content -->
+                            <div class="min-w-0 flex-1">
+                                <p class="text-sm font-medium text-gray-900">
+                                    {% if notification.type == "like" %}
+                                        <span class="font-semibold">{{ notification.from_user.full_name }}</span> liked your post
+                                    {% elif notification.type == "comment" %}
+                                        <span class="font-semibold">{{ notification.from_user.full_name }}</span> commented on your post
+                                    {% elif notification.type == "reply" %}
+                                        <span class="font-semibold">{{ notification.from_user.full_name }}</span> replied to your comment
+                                    {% elif notification.type == "follow" %}
+                                        <span class="font-semibold">{{ notification.from_user.full_name }}</span> started following you
+                                    {% endif %}
+                                </p>
+                                {% if notification.post %}
+                                    <p class="text-sm text-gray-600 line-clamp-1">
+                                        {{ notification.post.title }}
+                                    </p>
+                                {% endif %}
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ notification.created_at|timesince }} ago
+                                </p>
+                            </div>
+
+                            <!-- Notification Icon -->
+                            <div class="flex-shrink-0">
+                                {% if notification.type == "like" %}
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-4">
+                                            <path d="M7.493 18.5c-.425 0-.82-.236-.975-.632A7.48 7.48 0 0 1 6 15.125c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75A.75.75 0 0 1 15 2a2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23h-.777ZM2.331 10.727a11.969 11.969 0 0 0-.831 4.398 12 12 0 0 0 .52 3.507C2.28 19.482 3.105 20 3.994 20H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 0 1-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227Z" />
+                                        </svg>
+                                    </span>
+                                {% elif notification.type == "comment" %}
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                        </svg>
+                                    </span>
+                                {% elif notification.type == "follow" %}
+                                    <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 text-gray-600">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                        </svg>
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </li>
+                {% empty %}
+                    <li class="py-12">
+                        <div class="text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No notifications</h3>
+                            <p class="mt-1 text-sm text-gray-500">You're all caught up! Check back later for new notifications.</p>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

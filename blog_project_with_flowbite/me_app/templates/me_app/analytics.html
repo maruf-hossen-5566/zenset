@@ -1,0 +1,324 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block extra_head %}
+<!-- Add ApexCharts -->
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+{% endblock %}
+
+{% block page_title %}Analytics{% endblock %}
+{% block page_subtitle %}Track your content performance and engagement{% endblock %}
+
+{% block page_actions %}
+<div class="flex gap-3">
+    <select id="timeRange" name="timeRange" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+        <option value="7" {% if request.GET.time_range == '7' %}selected{% endif %} >Last 7 days</option>
+        <option value="30" {% if request.GET.time_range == '30' %}selected{% endif %} >Last 30 days</option>
+        <option value="90" {% if request.GET.time_range == '90' %}selected{% endif %} >Last 90 days</option>
+        <option value="365" {% if request.GET.time_range == '365' %}selected{% endif %} >Last year</option>
+    </select>
+</div>
+{% endblock %}
+
+{% block content %}
+<!-- Stats Overview -->
+<div class="grid gap-4 md:gap-6 mb-8 md:grid-cols-2 xl:grid-cols-3">
+    <!-- Total Views -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-700">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+                    <path fill-rule="evenodd" d="M1.323 11.447C2.811 6.976 7.028 3.75 12.001 3.75c4.97 0 9.185 3.223 10.675 7.69.12.362.12.752 0 1.113-1.487 4.471-5.705 7.697-10.677 7.697-4.97 0-9.186-3.223-10.675-7.69a1.762 1.762 0 0 1 0-1.113ZM17.25 12a5.25 5.25 0 1 1-10.5 0 5.25 5.25 0 0 1 10.5 0Z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <h2 class="text-sm font-medium text-gray-600">Total Views</h2>
+                <p class="text-2xl font-semibold text-gray-900">{{ stats_overview.total_views|default:0|intcomma }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Likes -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-700">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path d="M7.493 18.5c-.425 0-.82-.236-.975-.632A7.48 7.48 0 0 1 6 15.125c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75A.75.75 0 0 1 15 2a2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23h-.777ZM2.331 10.727a11.969 11.969 0 0 0-.831 4.398 12 12 0 0 0 .52 3.507C2.28 19.482 3.105 20 3.994 20H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 0 1-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227Z" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <h2 class="text-sm font-medium text-gray-600">Total Likes</h2>
+                <p class="text-2xl font-semibold text-gray-900">{{ stats_overview.total_likes|default:0|intcomma }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Total Comments -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-700">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                    <path fill-rule="evenodd" d="M4.804 21.644A6.707 6.707 0 0 0 6 21.75a6.721 6.721 0 0 0 3.583-1.029c.774.182 1.584.279 2.417.279 5.322 0 9.75-3.97 9.75-9 0-5.03-4.428-9-9.75-9s-9.75 3.97-9.75 9c0 2.409 1.025 4.587 2.674 6.192.232.226.277.428.254.543a3.73 3.73 0 0 1-.814 1.686.75.75 0 0 0 .44 1.223ZM8.25 10.875a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25ZM10.875 12a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Zm4.875-1.125a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25Z" clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="ml-4">
+                <h2 class="text-sm font-medium text-gray-600">Total Comments</h2>
+                <p class="text-2xl font-semibold text-gray-900">{{ stats_overview.total_comments|default:0|intcomma }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="grid gap-y-8 gap-x-6 mb-8 md:grid-cols-2">
+    <!-- Views chart -->
+    <div class="bg-white col-span-2 border border-gray-200 rounded-xl shadow-sm p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Views Over Time</h3>
+        {% if views_data %}
+            <div class="h-80" id="viewsChart"></div>
+        {% else %}
+            <p class="py-24 text-center text-gray-500">No views data available</p>
+        {% endif %}
+    </div>
+
+    <!-- Engagement Rate -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Engagement Distribution</h3>
+        {% if stats_overview.total_likes > 0 or stats_overview.total_comments > 0 %}
+            <div class="h-80" id="engagementChart"></div>
+        {% else %}
+            <p class="py-24 text-center text-gray-500">No engagement data available</p>
+        {% endif %}
+    </div>
+
+    <!-- Popular Tags -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-medium text-gray-900">Popular Tags</h3>
+        </div>
+        {% if popular_tags %}
+            <div class="space-y-4">
+                {% for tag in popular_tags|slice:":5" %}
+                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm font-medium text-gray-900">#{{ tag.tags__name }}</span>
+                                <span class="bg-blue-50 text-blue-700 text-xs font-medium px-2.5 py-0.5 rounded-full">{{ tag.count }} posts</span>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">{{ tag.percentage|floatformat:1 }}%</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2">
+                            <div class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {{ tag.percentage|floatformat:1 }}%"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="flex flex-col items-center justify-center py-12">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-gray-400 mb-3" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 6h.01" />
+                </svg>
+                <p class="text-gray-500">No tags data available</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Top Posts -->
+<div class="bg-white border border-gray-200 rounded-xl shadow-sm">
+    <div class="p-6">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Top Performing Posts</h3>
+        <div class="relative overflow-x-auto">
+            {% if top_posts %}
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Post Title</th>
+                            <th scope="col" class="px-6 py-3">Views</th>
+                            <th scope="col" class="px-6 py-3">Likes</th>
+                            <th scope="col" class="px-6 py-3">Comments</th>
+                            <th scope="col" class="px-6 py-3">Engagement Rate</th>
+                            <th scope="col" class="px-6 py-3">Published Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for post in top_posts %}
+                            <tr class="bg-white border-b hover:bg-gray-50">
+                                <td class="px-6 py-4 font-medium text-gray-900">
+                                    <a href="{% url 'blog:post_detail' post.author.username post.slug %}" class="hover:text-blue-600">
+                                        {{ post.title }}
+                                    </a>
+                                </td>
+                                <td class="px-6 py-4">{{ post.views_count }}</td>
+                                <td class="px-6 py-4">{{ post.likes_count }}</td>
+                                <td class="px-6 py-4">{{ post.comments_count }}</td>
+                                <td class="px-6 py-4">{{ post.engagement_rate|floatformat:2 }}%</td>
+                                <td class="px-6 py-4">{{ post.published_date|date:"M d, Y" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="py-24 text-center text-gray-500">No posts found</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+  
+{% endblock %}
+
+{% block extra_scripts %}
+    {% comment %} <script src="{% static 'js/analytics.js' %}"></script> {% endcomment %}
+    <!-- --- JS --- -->
+    <script>
+        // --- if filter changes, update the chart ---
+        const timeRange = document.getElementById("timeRange")
+        timeRange.addEventListener("change", function(e){
+            window.location.href= `${window.location.pathname}?time_range=${e.target.value}`
+        })
+
+
+        // Views Chart configuration
+        const options = {
+            chart: {
+                height: "100%",
+                maxWidth: "100%",
+                type: "area",
+                fontFamily: "Inter, sans-serif",
+                dropShadow: {
+                    enabled: false,
+                },
+                toolbar: {
+                    show: false,
+                },
+            },
+            tooltip: {
+                enabled: true,
+                x: {
+                    show: false,
+                },
+            },
+            fill: {
+                type: "gradient",
+                gradient: {
+                    opacityFrom: 0.55,
+                    opacityTo: 0,
+                    shade: "#1C64F2",
+                    gradientToColors: ["#1C64F2"],
+                },
+            },
+            dataLabels: {
+                enabled: false,
+            },
+            stroke: {
+                width: 6,
+            },
+            grid: {
+                show: false,
+                strokeDashArray: 4,
+                padding: {
+                    left: 2,
+                    right: 2,
+                    top: 0
+                },
+            },
+            series: [
+                {
+                    name: "Views",
+                    data: {{ views_data|safe }},
+                    color: "#1A56DB",
+                },
+            ],
+            xaxis: {
+                categories: {{ views_date|safe }},
+                labels: {
+                    show: false,
+                },
+                axisBorder: {
+                    show: false,
+                },
+                axisTicks: {
+                    show: false,
+                },
+            },
+            yaxis: {
+                show: false,
+            },
+        }
+        
+        if (document.getElementById("viewsChart") && typeof ApexCharts !== 'undefined') {
+            const chart = new ApexCharts(document.getElementById("viewsChart"), options);
+            chart.render();
+        }
+
+        // Engagement Chart configuration
+        const engagementChartOptions = {
+            chart: {
+                height: 320,
+                width: "100%",
+                type: "pie",
+                fontFamily: "Inter, sans-serif",
+            },
+            series: [
+                {{ stats_overview.total_likes|default:0 }}, 
+                {{ stats_overview.total_comments|default:0 }}
+            ],
+            labels: ["Likes", "Comments"],
+            {% comment %} colors: ["#1A56DB", "#7E3BF2"], {% endcomment %}
+            colors: ["#7E3BF2","#16BDCA"],
+            legend: {
+                show: false
+            },
+            stroke: {
+                colors: ["white"],
+                lineCap: "",
+            },
+            plotOptions: {
+                pie: {
+                    expandOnClick: true,
+                    donut: {
+                        size: "0%"
+                    }
+                }
+            },
+            tooltip: {
+                enabled: true,
+                theme: "light",
+                y: {
+                    formatter: function(value) {
+                        return value.toLocaleString()
+                    }
+                }
+            }
+        }
+
+        if (document.getElementById("engagementChart") && typeof ApexCharts !== 'undefined') {
+            const chart = new ApexCharts(document.getElementById("engagementChart"), engagementChartOptions);
+            chart.render();
+
+            // Create custom legend
+            const legendContainer = document.getElementById("engagement-legend");
+            const legendItems = [
+                { label: "Likes", color: "#1A56DB", value: {{ stats_overview.total_likes|default:0 }} },
+                { label: "Comments", color: "#7E3BF2", value: {{ stats_overview.total_comments|default:0 }} }
+            ];
+
+            legendItems.forEach(item => {
+                const legendItem = document.createElement("div");
+                legendItem.className = "flex items-center gap-2";
+                legendItem.innerHTML = `
+                    <div class="w-3 h-3 rounded-full" style="background-color: ${item.color}"></div>
+                    <div class="flex items-center gap-1">
+                        <span class="text-sm font-medium text-gray-900">${item.label}</span>
+                        <span class="text-sm text-gray-500">${item.value.toLocaleString()}</span>
+                    </div>
+                `;
+                legendContainer.appendChild(legendItem);
+            });
+        }
+    </script>
+{% endblock %}
+

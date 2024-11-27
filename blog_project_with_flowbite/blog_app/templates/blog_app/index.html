@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Zenset - Your Blogging Home{% endblock %}
+
+{% block content %}
+<div class="max-w-screen-2xl w-full px-4 mx-auto bg-white">
+    <!-- --- Navbar --- -->
+    {% include 'blog_app/components/nav.html' %}
+
+    <div class="w-full mx-auto pb-24">
+        <!-- --- Featured Post --- -->
+        {% if featured_post %}
+            <section class="mb-8">
+                <article class="group bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden">
+                    <div class="grid md:grid-cols-2 gap-0">
+                        <!-- Image Container -->
+                        <div class="relative h-72 md:h-[600px] overflow-hidden">
+                            {% if featured_post.image %}
+                                <img src="{{ featured_post.image.url }}" alt="{{ featured_post.title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            {% else %}
+                                <img src="https://images.unsplash.com/photo-1640960543409-dbe56ccc30e2?q=80&w=2080" alt="{{ featured_post.title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            {% endif %}
+                            <!-- Gradient Overlay -->
+                            <div class="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent md:hidden"></div>
+                            
+                            <!-- Mobile Category Badge -->
+                            {% if featured_post.category %}
+                                <a href="{% url 'blog:category' slug=featured_post.category.slug %}" 
+                                   class="md:hidden absolute top-4 left-4 bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1.5 rounded-full border border-blue-200">
+                                    {{featured_post.category.name }}
+                                </a>
+                            {% endif %}
+                        </div>
+
+                        <!-- Content Container -->
+                        <div class="relative p-6 md:p-12 flex flex-col justify-between">
+                            <div class="space-y-4">
+                                <!-- Desktop Category Badge -->
+                                {% if featured_post.category %}
+                                    <a href="{% url 'blog:category' slug=featured_post.category.slug %}" 
+                                       class="hidden md:inline-flex bg-blue-100 text-blue-800 text-sm font-medium px-4 py-1.5 rounded-full border border-blue-200">
+                                        {{featured_post.category.name }}
+                                    </a>
+                                {% endif %}
+
+                                <!-- Title -->
+                                <h3 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 !leading-snug">
+                                    <a href="{% url 'blog:post_detail' username=featured_post.author.username slug=featured_post.slug %}" 
+                                       class="hover:underline line-clamp-3">
+                                        {{ featured_post.title }}
+                                    </a>
+                                </h3>
+
+                                <!-- Content Preview -->
+                                <p class="text-gray-600 text-base md:text-lg line-clamp-3 font-light">
+                                    {{featured_post.content|safe|striptags|truncatechars:200 }}
+                                </p>
+
+                                <!-- Read More Link -->
+                                <a href="{% url 'blog:post_detail' username=featured_post.author.username slug=featured_post.slug %}" 
+                                   class="inline-flex items-center text-blue-600 hover:underline font-medium group/link">
+                                    Read full article
+                                    <svg class="w-4 h-4 ml-1 group-hover/link:translate-x-1 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                    </svg>
+                                </a>
+                            </div>
+
+                            <!-- Author Info -->
+                            <div class="flex items-center gap-4 pt-8 mt-8 border-t border-gray-100">
+                                <img src="https://images.unsplash.com/photo-1640960543409-dbe56ccc30e2?q=80&w=2080" 
+                                     alt="{{ featured_post.author.full_name }}" 
+                                     class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm">
+                                <div>
+                                    <a href="{% url 'profile:profile' username=featured_post.author.username %}" class="hover:underline font-semibold text-gray-900">{{ featured_post.author.full_name }}</a>
+                                    <div class="flex items-center gap-2 text-sm text-gray-500">
+                                        <span>{{ featured_post.published_date|date:"F d, Y" }}</span>
+                                        <span>•</span>
+                                        <span>{{ featured_post.read_time|default:5 }} min read</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </section>
+        {% endif %}
+
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8 mb-20">
+            <!-- --- Posts --- -->
+            {% if page_obj %}
+                <section class="col-span-2 lg:col-span-4">
+                    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-8">
+                        {% for post in page_obj %}
+                            <article class="group relative flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                                <!-- Image with overlay -->
+                                <div class="relative h-64 flex flex-col overflow-hidden">
+                                    <img
+                                    {% if post.image %}
+                                        src="{{ post.image.url }}"
+                                    {% else %}
+                                        src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                    {% endif %}
+                                        alt="{{ post.title }}" 
+                                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                    <!-- Category Badge -->
+                                    {% if post.tag %}
+                                        <a href="{% url 'blog:tag' slug=post.tag.slug %}" class="absolute top-4 left-4 bg-gray-100 text-black text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200">
+                                            {{ post.tag.name }}
+                                        </a>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Content -->
+                                <div class="h-64 flex flex-col p-6">
+                                    <!-- Title -->
+                                    <a title="{{ post.title }}" href="{% url 'blog:post_detail' username=post.author.username slug=post.slug %}" class="text-xl font-bold text-gray-900 mb-3 w-full hover:underline line-clamp-2">
+                                        {{ post.title }}
+                                    </a>
+                                    <!-- Preview Text -->
+                                    <p class="text-gray-600 text-sm line-clamp-3 mb-4">
+                                        {% if post.content_preview %}
+                                            {{ post.content_preview|safe|striptags|truncatechars:200 }}
+                                        {% else %}
+                                            {{ post.content|safe|striptags|truncatechars:200 }}
+                                        {% endif %}
+                                    </p>
+
+                                    <!-- Meta Info -->
+                                    <div class="mt-auto flex items-center justify-between pt-4 border- border-gray-100">
+                                        <div class="flex items-center gap-3">
+                                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                                alt="{{ post.author.full_name }}" 
+                                                class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                                            <div>
+                                                <a href="{% url 'profile:profile' username=post.author.username %}" class="text-sm hover:underline font-semibold text-gray-900">{{ post.author.full_name }}</a>
+                                                <div class="flex items-center gap-2 text-sm text-gray-500">
+                                                    <span>{{ post.created_at|date:"M d, Y" }}</span>
+                                                    <span>•</span>
+                                                    <span>{{ post.read_time|default:5 }} min read</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+
+            <!-- --- Tags to follow --- -->
+            {% if tags_to_follow %}
+                <section class="col-span-2 lg:col-span-4 bg-gray-50 p-6 border border-gray-200 rounded-xl">
+                    <div class="w-full mb-8 flex items-center justify-between">
+                        <h2 class="text-xl capitalize font-bold text-gray-800 font-inter flex items-center">Tags to follow</h2>
+                        <a href="{% url 'suggestion:tags' %}" class="text-sm text-blue-500 hover:underline">See more</a>
+                    </div>
+                    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-2 lg:gap-4">
+                        {% for tag in tags_to_follow %}
+                            <article class="p-4 flex flex-row bg-white rounded-xl shadow-sm gap-6 border border-gray-200 overflow-hidden">
+                                <!-- Content -->
+                                <div class="w-full flex flex-col">
+                                    <!-- Meta Info -->
+                                    <div class="mt-auto flex items-start justify-between">
+                                        <div class="flex items-start gap-3">
+                                            <div class="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
+                                                {% if tag.image %}
+                                                    <img src="{{ tag.image.url }}" 
+                                                         alt="{{ tag.name }}" 
+                                                         class="w-full h-full object-cover">
+                                                {% else %}
+                                                    <div class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+                                                        <span class="text-blue-600 text-lg font-bold">#</span>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                <a href="{% url 'blog:tag_detail' slug=tag.slug %}" class="text-sm hover:underline font-semibold text-gray-900">{{ tag.name }}</a>
+                                                <div class="text-sm text-gray-500 line-clamp-2">{{ tag.description|default:""|truncatechars:100 }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Follow Button -->
+                                <a href="{% url 'blog:follow_tag' id=tag.id %}" 
+                                   class="freeze-button inline-block h-max bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">
+                                    Follow
+                                </a>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+            
+            <!-- --- Who to follow --- -->
+            {% if who_to_follow %}
+                <section class="col-span-2 lg:col-span-4 bg-gray-50 p-6 border border-gray-200 rounded-xl">
+                    <div class="w-full mb-8 flex items-center justify-between">
+                        <h2 class="text-xl capitalize font-bold text-gray-800 font-inter flex items-center">Who to follow</h2>
+                        <a href="{% url 'suggestion:writers' %}" class="text-sm text-blue-500 hover:underline">See more</a>
+                    </div>
+                    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-2 lg:gap-4">
+                        {% for user in who_to_follow %}
+                            <article class="p-4 flex flex-row bg-white rounded-xl shadow-sm gap-6 border border-gray-200 overflow-hidden">
+                                <!-- Content -->
+                                <div class="w-full flex flex-col">
+                                    <!-- Meta Info -->
+                                    <div class="mt-auto flex items-start justify-between">
+                                        <div class="flex items-start gap-3">
+                                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                                alt="{{ user.full_name }}" 
+                                                class="w-10 h-10 rounded-full flex-shrink-0 object-cover border-2 border-white shadow-sm">
+                                            <div>
+                                                <a href="{% url 'profile:profile' username=user.username %}" class="text-sm hover:underline font-semibold text-gray-900">{{ user.full_name }}</a>
+                                                <span class="text-sm text-gray-500 line-clamp-2">{{ user.bio|truncatechars:100 }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- Follow Button -->
+                                <a href="{% url 'profile:follow' user.id %}" class="freeze-button inline-block h-max bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">
+                                    Follow
+                                </a>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+        </div>
+        
+        <!-- --- Pagination --- -->
+        <div class="w-full flex items-center justify-end">
+            {% if previous_page %}
+                <a href="?page={{ previous_page }}" class="flex items-center justify-center px-4 h-10 me-3 text-base font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 ">
+                    <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                    </svg>
+                    Previous
+                </a>
+            {% endif %}
+            {% if next_page %}
+                <a href="?page={{ next_page }}" class="flex items-center justify-center px-4 h-10 text-base font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 ">
+                    Next
+                    <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                    </svg>
+                </a>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,657 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+
+{% block title %}{{post.title}}{% endblock title %}
+
+{% block content %}
+<style>
+    html {
+        scroll-padding-top: 8.5rem;
+    }
+    {% comment %} article * {
+        width: 100% ;
+    } {% endcomment %}
+</style>
+
+<main class="w-full bg-white antialiased">
+    <!-- --- Unpublish banner --- -->
+    {% if not post.is_published and post.author == request.user %}
+        <div class="w-full">
+            <div class="w-full bg-yellow-50 border-b border-yellow-200 py-3 px-4">
+                <div class="w-full max-w-4xl mx-auto">
+                    <div class="flex items-center justify-between flex-wrap gap-4">
+                        <div class="flex items-center flex-1 min-w-0">
+                            <span class="flex p-2 rounded-lg bg-yellow-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-yellow-700">
+                                    <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 1 0 1.06 1.06L12 13.06l1.72 1.72a.75.75 0 1 0 1.06-1.06L13.06 12l1.72-1.72a.75.75 0 1 0-1.06-1.06L12 10.94l-1.72-1.72Z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                            <p class="ml-3 font-medium text-yellow-800 truncate">
+                                This post is currently unpublished and is only visible to you
+                            </p>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <a href="{% url 'blog:change_post_status' post.id %}" class="flex items-center justify-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-blue-800 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                Publish now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="pt-8 pb-16 lg:pt-16 lg:pb-24 bg-white antialiased">
+        <div class="flex justify-between px-4 mx-auto max-w-screen-2xl">
+            <article class="mx-auto w-full max-w-4xl format format-sm sm:format-base lg:format-lg format-blue">
+                <header class="mb-4 mx-auto max-w-2xl w-full lg:mb-6 not-format">
+                    <address class="flex items-center mb-6 not-italic">
+                        <div class="inline-flex items-start mr-3 text-sm text-gray-900 dark:text-white">
+                            {% if post.author.image %}
+                                <img loading="lazy" class="mr-4 w-16 h-16 rounded-full" src="{{ post.author.image.url }}" alt="Jese Leos">
+                            {% else %}
+                                <img loading="lazy" class="mr-4 w-16 h-16 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-2.jpg" alt="Jese Leos">
+                            {% endif %}
+                            <div>
+                                <div class="w-max flex flex-row items-center">
+                                    <a href="{% url 'profile:profile' post.author.username %}" rel="author" class="w-max text-xl font-bold text-gray-900 hover:underline">{{ post.author.full_name }}</a>
+                                    {% if not following and not post.author == request.user %}
+                                        <span class="w-max mx-2 text-gray-400 text-xs">•</span>
+                                        <a href="{% url 'profile:follow' post.author.id %}" class="hover:underline w-max text-sm text-blue-600">Follow</a>
+                                    {% endif %}
+                                </div>
+                                <p class="text-base text-gray-500 line-clamp-2">{{ post.author.bio|truncatechars:100 }}</p>
+                                <p class="text-base text-gray-500"><time pubdate datetime="{{ post.created_at|date:'Y-m-d' }}" title="{{ post.created_at|date:'F j, Y' }}">{{ post.created_at|date:'M. j, Y' }}</time></p>
+                            </div>
+                        </div>
+                    </address>
+                    <h1 class="mb-4 text-3xl font-extrabold leading-tight text-gray-900 lg:mb-6 lg:text-4xl">{{post.title}}</h1>
+                </header>
+
+                <!-- --- Post image --- -->
+                <div class="w-full">
+                    {% if post.image %}
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-2xl "></div>
+                            <img loading="lazy" src="{{post.image.url}}" alt="{{ post.title }}" class="border border-gray-200 cloudinary-post-image w-full rounded-2xl object-cover object-center aspect-video relative">
+                        </div>
+                    {% else %}
+                        <div class="relative">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-2xl "></div>
+                            <img loading="lazy" src="https://images.unsplash.com/photo-1710162734220-d543f0dff259?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="{{ post.title }}" class="border border-gray-200 cloudinary-post-image w-full rounded-2xl object-cover object-center aspect-video relative">
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- --- Response section --- -->
+                <div class="max-w-2xl w-full mx-auto flex items-center justify-start space-x-2 border-y border-gray-200 py-4 my-8">
+                    <a href="{% url 'like:like_post' post.id %}" class="w-max me-2" style="text-decoration: none;">
+                        <button type="button" class="flex items-center text-gray-500 flex-row bg-white focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 disabled:cursor-not-allowed" {% if post.author == request.user %}disabled data-tooltip-target="tooltip-light-like-{{ post.id }}" data-tooltip-style="light"{% endif %}>
+                            {% if liked %}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5 me-1">
+                                    <path d="M7.493 18.5c-.425 0-.82-.236-.975-.632A7.48 7.48 0 0 1 6 15.125c0-1.75.599-3.358 1.602-4.634.151-.192.373-.309.6-.397.473-.183.89-.514 1.212-.924a9.042 9.042 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75A.75.75 0 0 1 15 2a2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H14.23c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23h-.777ZM2.331 10.727a11.969 11.969 0 0 0-.831 4.398 12 12 0 0 0 .52 3.507C2.28 19.482 3.105 20 3.994 20H4.9c.445 0 .72-.498.523-.898a8.963 8.963 0 0 1-.924-3.977c0-1.708.476-3.305 1.302-4.666.245-.403-.028-.959-.5-.959H4.25c-.832 0-1.612.453-1.918 1.227Z" />
+                                </svg>
+                            {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 me-1">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.633 10.25c.806 0 1.533-.446 2.031-1.08a9.041 9.041 0 0 1 2.861-2.4c.723-.384 1.35-.956 1.653-1.715a4.498 4.498 0 0 0 .322-1.672V2.75a.75.75 0 0 1 .75-.75 2.25 2.25 0 0 1 2.25 2.25c0 1.152-.26 2.243-.723 3.218-.266.558.107 1.282.725 1.282m0 0h3.126c1.026 0 1.945.694 2.054 1.715.045.422.068.85.068 1.285a11.95 11.95 0 0 1-2.649 7.521c-.388.482-.987.729-1.605.729H13.48c-.483 0-.964-.078-1.423-.23l-3.114-1.04a4.501 4.501 0 0 0-1.423-.23H5.904m10.598-9.75H14.25M5.904 18.5c.083.205.173.405.27.602.197.4-.078.898-.523.898h-.908c-.889 0-1.713-.518-1.972-1.368a12 12 0 0 1-.521-3.507c0-1.553.295-3.036.831-4.398C3.387 9.953 4.167 9.5 5 9.5h1.053c.472 0 .745.556.5.96a8.958 8.958 0 0 0-1.302 4.665c0 1.194.232 2.333.654 3.375Z" />
+                                </svg>
+                            {% endif %}
+                            <span class="">{{ post.likes_count|humanize_thousands }} <span class="hidden md:inline">Like{{ post.likes_count|pluralize:"s" }}</span></span>
+                        </button>
+                    </a>
+                    <div id="tooltip-light-like-{{ post.id }}" role="tooltip" class="absolute z-10 w-max invisible inline-block px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 tooltip hidden xl:block">
+                        Cannot like your own post
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
+
+                    <a href="#comments" style="text-decoration: none;" class="w-max me-2 pointer-events-none">
+                        <button type="button" class="text-gray-500 flex items-center flex-row bg-white focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-2.5 disabled:cursor-not-allowed pointer-events-auto" {% if post.disable_comments %}disabled{% endif %} {% if post.disable_comments %}data-tooltip-target="tooltip-light" data-tooltip-style="light" {% endif %}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 me-1">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+                            </svg>
+                            <span class="">{{ post.comments_count|humanize_thousands }} <span class="hidden md:inline">Comment{{ post.comments_count|pluralize:"s" }}</span></span>
+                        </button>
+                    </a>
+                    <div id="tooltip-light" role="tooltip" class="absolute z-10 w-max invisible inline-block px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 tooltip hidden xl:block">
+                        Comments are disabled
+                        <div class="tooltip-arrow" data-popper-arrow></div>
+                    </div>
+
+                    <a href="{% url 'blog:bookmark' post.id %}" style="text-decoration: none;" class="!ms-auto w-max pointer-events-none ">
+                        <button class="!ms-auto size-[40px] text-gray-500 w-max overflow-visible inline-flex pointer-events-auto items-center p-2.5 text-sm font-medium text-center bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 " type="button"> 
+                            {% if bookmarked %}
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-5">
+                                    <path fill-rule="evenodd" d="M6.32 2.577a49.255 49.255 0 0 1 11.36 0c1.497.174 2.57 1.46 2.57 2.93V21a.75.75 0 0 1-1.085.67L12 18.089l-7.165 3.583A.75.75 0 0 1 3.75 21V5.507c0-1.47 1.073-2.756 2.57-2.93Z" clip-rule="evenodd" />
+                                </svg>
+                            {% else %}
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5 ">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z" />
+                                </svg>
+                            {% endif %}
+                        </button>
+                    </a>
+
+                    <!-- --- Post Actions menu button --- -->
+                    <button id="dropdownMenuIconHorizontalButton" data-dropdown-toggle="dropdownDotsHorizontal-{{post.id}}" class="!ms-aut size-[40px] w-max inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50 " type="button"> 
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                            <path fill-rule="evenodd" d="M4.5 12a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm6 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Zm6 0a1.5 1.5 0 1 1 3 0 1.5 1.5 0 0 1-3 0Z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <!-- --- Post Actions menu --- -->
+                    <div id="dropdownDotsHorizontal-{{post.id}}" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 ">
+                        <ul class="py-2 px-0 m-0 text-sm list-none" aria-labelledby="dropdownMenuIconHorizontalButton">
+                            {% if post.author == request.user %}
+                                <li class="p-0 m-0"><a href="{% url 'blog:edit_post' post.id %}" class="block text-gray-700 px-4 py-2 hover:bg-gray-100 !decoration-none" style="text-decoration: none;">Edit</a></li>
+                                <li class="p-0 m-0">
+                                    <a href="{% url 'blog:disable_comments' post.id %}" class="block text-gray-700 px-4 py-2 hover:bg-gray-100 !decoration-none" style="text-decoration: none;">
+                                        {% if post.disable_comments %}Enable comments{% else %}Disable comments{% endif %}
+                                    </a>
+                                </li>
+                                <li class="p-0 m-0"><a href="#" class="block text-gray-700 px-4 py-2 hover:bg-gray-100 !decoration-none" style="text-decoration: none;">Pin to profile</a></li>
+                                <li class="p-0 m-0"><a href="{% url 'blog:change_post_status' post.id %}" class="block text-gray-700 px-4 py-2 hover:bg-gray-100 !decoration-none" style="text-decoration: none;">{% if post.is_published %}Unpublish{% else %}Publish{% endif %} post</a></li>
+                                <li class="p-0 m-0"><button data-modal-target="popup-modal-{{ post.id }}" data-modal-toggle="popup-modal-{{ post.id }}" class="w-full text-start block px-4 py-2 text-red-500 hover:bg-gray-100 !decoration-none" style="text-decoration: none;">Delete</button></li>
+                            {% else %}
+                                <li class="p-0 m-0"><a href="{% url 'like:like_post' post.id %}" class="block text-gray-700 px-4 py-2 hover:bg-gray-100 !decoration-none" style="text-decoration: none;">{% if liked %}Undo like{% else %}Like{% endif %}</a></li>
+                                <li class="p-0 m-0"><a href="#comment" class="block text-gray-700 px-4 py-2 hover:bg-gray-100 !decoration-none {% if post.disable_comments %}pointer-events-none{% endif %}" style="text-decoration: none;">Comment</a></li>
+                                <li class="p-0 m-0"><a href="#" class="block text-gray-700 px-4 py-2 hover:bg-gray-100 !decoration-none" style="text-decoration: none;">Follow</a></li>
+                                <li class="p-0 m-0"><a href="#" class="block text-gray-700 px-4 py-2 hover:text-red-500 hover:bg-gray-100 !decoration-none" style="text-decoration: none;">Report</a></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+
+
+                <!-- --- Post content --- -->
+                <section class="max-w-2xl w-full mx-auto pb-24 border-b border-gray-200">
+                    {{ post.content|safe }}
+                </section>
+
+                <!-- --- Tags section --- -->
+                {% if post.post_tags %}
+                    <div class="max-w-2xl w-full mx-auto flex flex-col items-start justify-start border-b border-gray-200 pb-10 my-10">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-lg lg:text-2xl font-bold text-gray-900">Tags</h2>
+                        </div>
+                        
+                        <div class="max-w-2xl w-full mx-auto flex flex-wrap gap-3 items-center justify-start">
+                            {% for tag in post.post_tags|slice:10 %}
+                                <a href="{% url 'blog:tag_detail' tag.slug %}" class="hover:bg-gray-100 text-gray-500 hover:text-gray-900 text-sm border border-gray-200 font-medium px-3.5 py-1.5 rounded-full no-underline">{{ tag.name }}</a>
+                            {% endfor %}
+                            {% if post.post_tags|length > 10 %}
+                                <a href="#" class="hover:bg-gray-100 text-gray-500 hover:text-gray-900 text-sm border border-gray-200 font-medium pl-3 pr-4 py-1.5 rounded-full no-underline flex items-center gap-1">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-[18px]">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                    </svg>
+                                    {{ post.post_tags|length|sub:8 }} more
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- --- Discussion --- -->
+                <section id="comments" class="max-w-2xl w-full mx-auto not-format mt-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-lg lg:text-2xl font-bold text-gray-900">Comments {% if not post.disable_comments %} ({{ post.comments.count }}){% endif %}</h2>
+                    </div>
+
+                    {% if post.disable_comments %}
+                        <div class="max-w-2xl mx-auto mt-4 text-center text-sm text-gray-500 border border-gray-100 py-24 px-4 rounded-lg">
+                            <p>The comments have been disabled by the author for this article</p>
+                        </div>
+                    {% else %}
+                        <!-- --- Comment Form --- -->
+                        <form action="{% url 'comment:comment_post' post.id %}" method="post" class="mb-8">
+                            {% csrf_token %}
+                            <div class="py-2 px-4 mb-4 bg-white rounded-lg border border-gray-200 focus-within:ring-4 focus-within:ring-blue-200">
+                                <label for="comment" class="sr-only">Your comment</label>
+                                <textarea id="comment" name="comment" rows="4" class="px-0 w-full h-32 resize-none text-sm text-gray-900 border-0 focus:ring-0" placeholder="Write a comment..." required></textarea>
+                            </div>
+                            <button type="submit" 
+                                class="inline-flex items-center py-2.5 px-4 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 disabled:opacity-50 disabled:cursor-not-allowed" 
+                                {% if post.disable_comments %}disabled data-tooltip-target="tooltip-light-{{ post.id }}" data-tooltip-style="light"{% endif %}>
+                                Post comment
+                            </button>
+                            {% if post.disable_comments %}
+                                <div id="tooltip-light-{{ post.id }}" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 tooltip">
+                                    Comments are disabled
+                                    <div class="tooltip-arrow" data-popper-arrow></div>
+                                </div>
+                            {% endif %}
+                        </form>
+
+                        <!-- --- Comments List --- -->
+                        <div class="flow-root">
+                            <ul role="list" class="divide-y divide-gray-200">
+                                {% for comment in comments %}
+                                    <li class="py-6" id="comment-{{ comment.id }}">
+                                        <!-- Comment -->
+                                        <div class="flex space-x-3">
+                                            <a href="{% url 'profile:profile' comment.user.username %}" class="flex-shrink-0">
+                                                {% if comment.user.image %}
+                                                    <img class="h-10 w-10 ring-1 ring-gray-300 object-cover object-center rounded-full" src="{{ comment.user.image.url }}" alt="{{ comment.user.full_name }}">
+                                                {% else %}
+                                                    <img class="h-10 w-10 ring-1 ring-gray-300 object-cover object-center rounded-full" src="{{ comment.user.username|r_img }}" alt="{{ comment.user.full_name }}">
+                                                {% endif %}
+                                            </a>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="flex items-center justify-between">
+                                                    <div class="flex items-center space-x-2">
+                                                        <p class="text-sm font-medium text-gray-900">
+                                                            <a href="{% url 'profile:profile' comment.user.username %}" class="hover:underline">{{ comment.user.full_name }}</a>
+                                                            {% if comment.user == request.user %}
+                                                                <span class="text-xs bg-gray-100 text-gray-700 rounded-full px-2 py-0.5 ml-1">You</span>
+                                                            {% elif comment.user == post.author %}
+                                                                <span class="text-xs bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 ml-1">Author</span>
+                                                            {% endif %}
+                                                        </p>
+                                                        <span class="text-2xl text-gray-500">·</span>
+                                                        <time class="text-sm text-gray-500" datetime="{{ comment.created_at|date:'Y-m-d' }}">
+                                                            {{ comment.created_at|timesince }} ago
+                                                        </time>
+                                                    </div>
+                                                    
+                                                    <!-- --- Comment Actions Dropdown --- -->
+                                                    <div class="flex-shrink-0">
+                                                        <!-- Dropdown button -->
+                                                        <button id="dropdownComment{{ comment.id }}Button" data-dropdown-toggle="dropdownComment{{ comment.id }}" class="inline-flex items-center p-2 text-sm font-medium text-center text-gray-500 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50">
+                                                            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
+                                                                <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
+                                                            </svg>
+                                                        </button>
+                                                        <!-- Dropdown menu -->
+                                                        <div id="dropdownComment{{ comment.id }}" class="hidden z-10 w-36 bg-white rounded-lg shadow-lg">
+                                                            <ul class="py-2 text-sm text-gray-700">
+                                                                {% if comment.user == request.user %}
+                                                                    {% if not post.disable_comments %}
+                                                                        <li><button data-modal-target="crud-comment-modal-{{ comment.id }}" data-modal-toggle="crud-comment-modal-{{ comment.id }}" class="block w-full px-4 py-2 text-left hover:bg-gray-100">Edit</button></li>
+                                                                    {% endif %}
+                                                                    <li><button data-modal-target="popup-modal-{{ comment.id }}" data-modal-toggle="popup-modal-{{ comment.id }}" class="block w-full px-4 py-2 text-left text-red-600 hover:bg-gray-100">Delete</button></li>
+                                                                {% else %}
+                                                                    {% if not post.disable_comments %}
+                                                                        <li><button data-modal-target="crud-modal-{{ comment.id }}" data-modal-toggle="crud-modal-{{ comment.id }}" class="block w-full px-4 py-2 text-left hover:bg-gray-100">Reply</button></li>
+                                                                    {% endif %}
+                                                                    <li><button class="block w-full px-4 py-2 text-left hover:bg-gray-100">Report</button></li>
+                                                                {% endif %}
+                                                            </ul>
+                                                        </div>
+                                                        {% if comment.user == request.user %}
+                                                            <!-- --- Update comment modal --- -->
+                                                            <div id="crud-comment-modal-{{ comment.id }}" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                                                <div class="relative p-4 w-full max-w-md max-h-full">
+                                                                    <!-- Modal content -->
+                                                                    <div class="relative bg-white rounded-lg shadow">
+                                                                        <!-- Modal header -->
+                                                                        <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                                                                            <h3 class="text-lg font-semibold text-gray-900">
+                                                                                Edit comment
+                                                                            </h3>
+                                                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="crud-comment-modal-{{ comment.id }}">
+                                                                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                                                                </svg>
+                                                                                <span class="sr-only">Close modal</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <!-- Modal body -->
+                                                                        <form action="{% url 'comment:comment_edit' comment.id %}" method="post" class="p-4 md:p-5">
+                                                                            {% csrf_token %}
+                                                                            <div class="grid gap-4 mb-4 grid-cols-2">
+                                                                                <div class="col-span-2">
+                                                                                    <label for="new_comment" class="block mb-2 text-sm font-medium text-gray-900">Comment</label>
+                                                                                    <textarea id="new_comment" name="new_comment" rows="5" class="block resize-none p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your comment here">{{ comment.content }}</textarea>
+                                                                                </div>
+                                                                            </div>
+                                                                            <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                                                                Update comment
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- --- Delete comment modal --- -->
+                                                            <div id="popup-modal-{{ comment.id }}" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                                                <div class="relative p-4 w-full max-w-md max-h-full">
+                                                                    <div class="relative bg-white rounded-lg shadow ">
+                                                                        <button type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="popup-modal-{{ comment.id }}">
+                                                                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                                                            </svg>
+                                                                            <span class="sr-only">Close modal</span>
+                                                                        </button>
+                                                                        <div class="p-4 md:p-5 text-center">
+                                                                            <svg class="mx-auto mb-4 text-gray-400 w-12 h-12" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                                                            </svg>
+                                                                            <h3 class="mb-5 text-lg font-normal text-gray-500">Are you sure you want to delete this comment?</h3>
+                                                                            <a href="{% url 'comment:comment_delete' comment.id %}" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                                                                                Yes, I'm sure
+                                                                            </a>
+                                                                            <button data-modal-hide="popup-modal-{{ comment.id }}" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100">No, cancel</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    </div>
+                                                </div>
+                                                
+                                                <!-- --- Comment Content --- -->
+                                                <p class="mt-2 text-sm text-gray-700">{{ comment.content }}</p>
+                                                
+                                                <!-- --- Reply --- -->
+                                                {% if not post.disable_comments and comment.user != request.user %}
+                                                    <div class="mt-2 flex items-center space-x-4" >
+                                                        <button type="button" data-modal-target="crud-modal-{{ comment.id }}" data-modal-toggle="crud-modal-{{ comment.id }}" class="flex items-center text-sm text-gray-500 hover:text-gray-700">
+                                                            <svg class="mr-1.5 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                                            </svg>
+                                                            Reply
+                                                        </button>
+                                                        <!-- --- Reply modal --- -->
+                                                        <div id="crud-modal-{{ comment.id }}" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                                            <div class="relative p-4 w-full max-w-md max-h-full">
+                                                                <!-- Modal content -->
+                                                                <div class="relative bg-white rounded-lg shadow">
+                                                                    <!-- Modal header -->
+                                                                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                                                                        <h3 class="text-lg font-semibold text-gray-900">
+                                                                            Reply to <span class="font-medium text-blue-600">{{ comment.user.full_name }}</span>
+                                                                        </h3>
+                                                                        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="crud-modal-{{ comment.id }}">
+                                                                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                                                            </svg>
+                                                                            <span class="sr-only">Close modal</span>
+                                                                        </button>
+                                                                    </div>
+                                                                    <!-- Modal body -->
+                                                                    <form action="{% url 'comment:reply' comment.id %}" method="post" class="p-4 md:p-5">
+                                                                        {% csrf_token %}
+                                                                        <div class="grid gap-4 mb-4 grid-cols-2">
+                                                                            <div class="col-span-2">
+                                                                                <input type="hidden" name="parent_reply" value="{{ reply.id }}">
+                                                                                <label for="reply_reply_content" class="block mb-2 text-sm font-medium text-gray-900">Reply</label>
+                                                                                <textarea id="reply_reply_content" name="reply_reply_content" rows="5" class="block resize-none p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your reply here"></textarea>
+                                                                            </div>
+                                                                            <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                                                                Update reply
+                                                                            </button>
+                                                                        </div>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+
+                                                <!-- --- Comment replies --- -->
+                                                {% if comment.replies.count > 0 %}
+                                                    <div class="mt-4" id="accordion-collapse-{{comment.id}}" data-accordion="collapse">
+                                                        <button type="button" data-accordion-target="#accordion-collapse-body-{{comment.id}}" aria-expanded="false" aria-controls="accordion-collapse-body-{{comment.id}}" class="flex items-center text-sm !bg-white !text-blue-600 hover:!underline">
+                                                            <span class="pointer-events-none">{{ comment.replies.count }} {{ comment.replies.count|pluralize:"reply,replies" }}</span>
+                                                            <svg class="w-4 h-4 ml-1 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                            </svg>
+                                                        </button>
+                                                        
+                                                        <!-- --- Replies accordion --- -->
+                                                        <div id="accordion-collapse-body-{{comment.id}}" class="hidden mt-2 pl-8 border-l-2 border-gray-100">
+                                                            {% for reply in comment.replies.all %}
+                                                                <div class="py-4" id="reply-{{ reply.id }}">
+                                                                    <div class="flex space-x-3">
+                                                                        <div class="flex-shrink-0">
+                                                                            <img class="h-8 w-8 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-3.jpg" alt="{{ reply.user.username }}">
+                                                                        </div>
+                                                                        <div class="flex-1 min-w-0">
+                                                                            <div class="flex items-center justify-between">
+                                                                                <div class="w-full flex items-center space-x-2">
+                                                                                    <p class="text-sm font-medium text-gray-900">
+                                                                                        {{ reply.user.full_name }}
+                                                                                        {% if reply.user == request.user %}
+                                                                                            <span class="text-xs bg-gray-100 text-gray-700 rounded-full px-2 py-0.5 ml-1">You</span>
+                                                                                        {% elif reply.user == post.author %}
+                                                                                            <span class="text-xs bg-blue-100 text-blue-700 rounded-full px-2 py-0.5 ml-1">Author</span>
+                                                                                        {% endif %}
+                                                                                    </p>
+                                                                                    <span class="text-sm text-gray-500">·</span>
+                                                                                    <time class="text-sm text-gray-500" datetime="{{ reply.created_at|date:'Y-m-d' }}">
+                                                                                        {{ reply.created_at|timesince }} ago
+                                                                                    </time>
+                                                                                    <!-- --- Reply actions dropdown --- -->
+                                                                                    <div class="flex-1 flex-shrink-0">
+                                                                                        <!-- Reply dropdown button -->
+                                                                                        <button id="dropdownReply{{ reply.id }}Button" data-dropdown-toggle="dropdownReply{{ reply.id }}" class="ml-auto flex items-center p-2 text-sm font-medium text-center text-gray-500 bg-white rounded-lg hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-50">
+                                                                                            <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
+                                                                                                <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
+                                                                                            </svg>
+                                                                                        </button>
+                                                                                        <!-- Reply dropdown menu -->
+                                                                                        <div id="dropdownReply{{ reply.id }}" class="hidden z-10 w-36 bg-white rounded-lg shadow-lg">
+                                                                                            <ul class="py-2 text-sm text-gray-700">
+                                                                                                {% if reply.user == request.user %}
+                                                                                                    {% if not post.disable_comments %}
+                                                                                                        <li><button data-modal-target="crud-reply-modal-{{ reply.id }}" data-modal-toggle="crud-reply-modal-{{ reply.id }}" class="block w-full px-4 py-2 text-left hover:bg-gray-100">Edit</button></li>
+                                                                                                    {% endif %}
+                                                                                                    <li><button data-modal-target="popup-modal-{{ reply.id }}" data-modal-toggle="popup-modal-{{ reply.id }}" class="block w-full px-4 py-2 text-left text-red-600 hover:bg-gray-100">Delete</button></li>
+                                                                                                {% else %}
+                                                                                                    {% if not post.disable_comments %}
+                                                                                                        <li><button data-modal-target="crud-reply-reply-modal-{{ reply.id }}" data-modal-toggle="crud-reply-reply-modal-{{ reply.id }}" class="block w-full px-4 py-2 text-left hover:bg-gray-100">Reply</button></li>
+                                                                                                    {% endif %}
+                                                                                                    <li><button class="block w-full px-4 py-2 text-left hover:bg-gray-100">Report</button></li>
+                                                                                                {% endif %}
+                                                                                            </ul>
+                                                                                        </div>
+                                                                                        <!-- --- Reply to reply modal --- -->
+                                                                                        <div id="crud-reply-reply-modal-{{ reply.id }}" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                                                                            <div class="relative p-4 w-full max-w-md max-h-full">
+                                                                                                <!-- Modal content -->
+                                                                                                <div class="relative bg-white rounded-lg shadow">
+                                                                                                    <!-- Modal header -->
+                                                                                                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                                                                                                        <h3 class="text-lg font-semibold text-gray-900">
+                                                                                                            Reply to <span class="font-medium text-blue-600">{{ reply.user.full_name }}</span>
+                                                                                                        </h3>
+                                                                                                        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="crud-reply-reply-modal-{{ reply.id }}">
+                                                                                                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                                                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                                                                                            </svg>
+                                                                                                            <span class="sr-only">Close modal</span>
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                    <!-- Modal body -->
+                                                                                                    <form action="{% url 'comment:reply' comment.id %}" method="post" class="p-4 md:p-5">
+                                                                                                        {% csrf_token %}
+                                                                                                        <div class="grid gap-4 mb-4 grid-cols-2">
+                                                                                                            <div class="col-span-2">
+                                                                                                                <input type="hidden" name="parent_reply" value="{{ reply.id }}">
+                                                                                                                <label for="reply_reply_content" class="block mb-2 text-sm font-medium text-gray-900">Reply</label>
+                                                                                                                <textarea id="reply_reply_content" name="reply_reply_content" rows="5" class="block resize-none p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your reply here"></textarea>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                                                                                            Update reply
+                                                                                                        </button>
+                                                                                                    </form>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <!-- --- Update reply modal --- -->
+                                                                                        <div id="crud-reply-modal-{{ reply.id }}" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                                                                            <div class="relative p-4 w-full max-w-md max-h-full">
+                                                                                                <!-- Modal content -->
+                                                                                                <div class="relative bg-white rounded-lg shadow">
+                                                                                                    <!-- Modal header -->
+                                                                                                    <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                                                                                                        <h3 class="text-lg font-semibold text-gray-900">
+                                                                                                            Edit reply
+                                                                                                        </h3>
+                                                                                                        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-toggle="crud-reply-modal-{{ reply.id }}">
+                                                                                                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                                                                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                                                                                            </svg>
+                                                                                                            <span class="sr-only">Close modal</span>
+                                                                                                        </button>
+                                                                                                    </div>
+                                                                                                    <!-- Modal body -->
+                                                                                                    <form action="{% url 'comment:reply_edit' reply.id %}" method="post" class="p-4 md:p-5">
+                                                                                                        {% csrf_token %}
+                                                                                                        <div class="grid gap-4 mb-4 grid-cols-2">
+                                                                                                            <div class="col-span-2">
+                                                                                                                <label for="new_reply" class="block mb-2 text-sm font-medium text-gray-900">Reply</label>
+                                                                                                                <textarea id="new_reply" name="new_reply" rows="5" class="block resize-none p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Write your reply here">{{ reply.content }}</textarea>
+                                                                                                            </div>
+                                                                                                        </div>
+                                                                                                        <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                                                                                                            Update reply
+                                                                                                        </button>
+                                                                                                    </form>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <!-- --- Delete reply modal --- -->
+                                                                                        <div id="popup-modal-{{ reply.id }}" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                                                                                            <div class="relative p-4 w-full max-w-md max-h-full">
+                                                                                                <div class="relative bg-white rounded-lg shadow ">
+                                                                                                    <button type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="popup-modal-{{ reply.id }}">
+                                                                                                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                                                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                                                                                        </svg>
+                                                                                                        <span class="sr-only">Close modal</span>
+                                                                                                    </button>
+                                                                                                    <div class="p-4 md:p-5 text-center">
+                                                                                                        <svg class="mx-auto mb-4 text-gray-400 w-12 h-12" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                                                                                        </svg>
+                                                                                                        <h3 class="mb-5 text-lg font-normal text-gray-500">Are you sure you want to delete this reply?</h3>
+                                                                                                        <a href="{% url 'comment:reply_delete' reply.id %}" class="text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                                                                                                            Yes, I'm sure
+                                                                                                        </a>
+                                                                                                        <button data-modal-hide="popup-modal-{{ reply.id }}" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100">No, cancel</button>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <p class="mt-2 text-sm text-gray-700">{% if reply.parent_reply %}<span class="font-medium px-1.5 py-0.5 bg-blue-100 text-blue-600 rounded">{{ reply.parent_reply.user.full_name }}/@{{ reply.parent_reply.user.username }}</span>&nbsp;{% endif %}{{ reply.content }}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </li>
+                                {% empty %}
+                                    <li class="py-8">
+                                        <div class="text-center">
+                                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                            </svg>
+                                            <h3 class="mt-2 text-sm font-medium text-gray-900">No comments yet</h3>
+                                            <p class="mt-1 text-sm text-gray-500">Be the first to share what you think!</p>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </section>
+            </article>
+        </div>
+    </div>
+</div>
+
+<!-- --- Read next --- -->
+<aside aria-label="Read next" class="py-24 px-4 mx-auto border-t border-gray-100 bg-white">
+    <div class="max-w-2xl w-full mx-auto">
+        <h2 class="mb-12 text-2xl font-bold text-gray-900">Read next</h2>
+        
+        <div class="grid gap-8 sm:grid-cols-2">
+            {% for related_post in related_posts %}
+                <article class="group">
+                    <!-- Image -->
+                    <div class="relative w-full aspect-[16/10] mb-5 overflow-hidden rounded-xl bg-gray-100">
+                        {% if related_post.image %}
+                            <img src="{{ related_post.image.url }}" 
+                                alt="{{ related_post.title }}" 
+                                class="w-full h-full object-cover">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                alt="{{ related_post.title }}" 
+                                class="w-full h-full object-cover">
+                        {% endif %}
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex flex-col">
+                        <!-- Title -->
+                        <h3 class="mb-2">
+                            <a href="{% url 'blog:post_detail' username=related_post.author.username slug=related_post.slug %}" 
+                                class="text-xl font-bold text-gray-900 line-clamp-2 hover:text-blue-600">
+                                {{ related_post.title }}
+                            </a>
+                        </h3>
+
+                        <!-- Author -->
+                        <div class="flex items-center mb-3">
+                            <div class="flex-shrink-0">
+                                {% if related_post.author.image %}
+                                    <img class="w-6 h-6 rounded-full" src="{{ related_post.author.image.url }}" alt="{{ related_post.author.username }}">
+                                {% else %}
+                                    <img class="w-6 h-6 rounded-full" src="{{ related_post.author.username|r_img }}" alt="{{ related_post.author.username }}">
+                                {% endif %}
+                            </div>
+                            <div class="ml-2">
+                                <a href="{% url 'profile:profile' related_post.author.username %}" class="text-sm font-medium text-gray-900 hover:text-blue-600">
+                                    {{ related_post.author.full_name }}
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Read more link -->
+                        <a href="{% url 'blog:post_detail' username=related_post.author.username slug=related_post.slug %}" 
+                            class="text-blue-600 hover:underline font-medium">
+                            Read more
+                        </a>
+                    </div>
+                </article>
+            {% endfor %}
+        </div>
+    </div>
+</aside>
+
+<!-- --- Delete post modal --- -->
+<div id="popup-modal-{{ post.id }}" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md max-h-full">
+        <div class="relative bg-white rounded-lg shadow">
+            <button type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="popup-modal-{{ post.id }}">
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                </svg>
+                <span class="sr-only">Close modal</span>
+            </button>
+            <div class="p-4 md:p-5 text-center">
+                <svg class="mx-auto mb-4 text-gray-400 w-12 h-12" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                </svg>
+                <h3 class="mb-5 text-lg font-normal text-gray-500">Are you sure you want to delete this post?</h3>
+                <a href="{% url 'blog:delete_post' post.id %}" class="freeze-button text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center">
+                    Yes, I'm sure
+                </a>
+                <button data-modal-hide="popup-modal-{{ post.id }}" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100">No, cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block footer_class %}bg-white{% endblock footer_class %}
+

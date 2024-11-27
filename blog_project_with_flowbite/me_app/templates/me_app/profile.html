@@ -1,0 +1,193 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block page_title %}My Profile{% endblock %}
+{% block page_subtitle %}Manage your personal information and preferences{% endblock %}
+
+{% block page_actions %}
+<button type="submit" disabled form="profile-form" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed">
+    Save Changes
+</button>
+{% endblock %}
+
+{% block content_classes %}space-y-6{% endblock %}
+
+{% block content %}
+<!-- Errors -->
+{% for field, errors in form.errors.items %}
+    {% for error in errors %}
+        <div class="bg-red-500 text-white p-4 rounded-lg">{{ error }}</div>
+    {% endfor %}
+{% endfor %}
+
+<!-- Top Section: Two-Column Layout -->
+<form id="profile-form" method="POST" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <!-- Left Column: Profile & Professional Info -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm">
+        <div class="p-6 h-full">
+            <div class="space-y-6 h-full flex flex-col">
+                {% csrf_token %}
+                
+                <!-- Profile Image -->
+                <div>
+                    <label class="block mb-2 text-sm font-medium text-gray-900">Profile Image</label>
+                    <div class="flex items-center space-x-6">
+                        <div class="shrink-0">
+                            {% if user.image %}
+                                <img class="w-20 h-20 object-cover object-center rounded-full border-2 border-gray-200"
+                                    src="{{ user.image.url }}" 
+                                    alt="Profile image">
+                            {% else %}
+                                <img class="w-20 h-20 object-cover object-center rounded-full border-2 border-gray-200"
+                                    src="https://images.pexels.com/photos/14785828/pexels-photo-14785828.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
+                                    alt="Profile image">
+                            {% endif %}
+                        </div>
+                        <div class="flex-1">
+                            {% comment %} <label class="flex flex-col items-center justify-center w-full h-24 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                                <div class="flex flex-col items-center justify-center pt-4 pb-4">
+                                    <svg class="w-6 h-6 mb-2 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                    </svg>
+                                    <p class="text-sm text-gray-500"><span class="font-semibold">Click to upload</span></p>
+                                </div>
+                                <input name="image" type="file" class="hidden" />
+                            </label> {% endcomment %}
+                            
+                            <input class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none" aria-describedby="file_input_help" name="image" id="file_input" type="file" accept="image/*" size="1MB" value="">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Basic Information -->
+                <div class="space-y-4 h-full flex flex-col">
+                    <h4 class="text-base font-medium text-gray-900">Basic Information</h4>
+                    
+                    <!-- Full Name -->
+                    <div>
+                        <label for="full_name" class="block mb-2 text-sm font-medium text-gray-900">Full Name</label>
+                        <input type="text" name="full_name" id="full_name" value="{{ user.full_name }}" 
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    </div>
+
+                    <!-- Username -->
+                    <div>
+                        <label for="username" class="block mb-2 text-sm font-medium text-gray-900">Username</label>
+                        <input type="text" name="username" id="username" value="{{ user.username }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    </div>
+                    
+                    <!-- Email -->
+                    <div>
+                        <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Email</label>
+                        <input type="email" name="email" id="email" value="{{ user.email }}" 
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    </div>
+
+                    <!-- Tagline -->
+                    <div class="h-full flex-1 flex flex-col">
+                        <label for="tagline" class="block mb-2 text-sm font-medium text-gray-900">Tagline</label>
+                        {% comment %} <input type="text" name="tagline" id="tagline" value="{{ user.tagline }}" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="A brief description about yourself"> {% endcomment %}
+                        <textarea id="tagline" name="tagline" rows="4" class="h-full resize-none block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500">{{ user.tagline }}</textarea>
+                    </div>
+
+                    <!-- Bio -->
+                    <div class="h-full flex-1 flex flex-col">
+                        <label for="bio" class="block mb-2 text-sm font-medium text-gray-900">Bio</label>
+                        <textarea id="bio" name="bio" rows="4" class="h-full resize-none block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500">{{ user.bio }}</textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Personal Info -->
+    <div class="bg-white border border-gray-200 rounded-xl shadow-sm">
+        <div class="p-6">
+            <div class="space-y-6">
+                <!-- Professional Information -->
+                <div class="space-y-4">
+                    <h4 class="text-base font-medium text-gray-900">Professional Information</h4>
+                    
+                    <div>
+                        <label for="job_title" class="block mb-2 text-sm font-medium text-gray-900">Job Title</label>
+                        <input type="text" name="job_title" id="job_title" value="{{ user.job_title }}" 
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    </div>
+
+                    <div>
+                        <label for="company" class="block mb-2 text-sm font-medium text-gray-900">Company</label>
+                        <input type="text" name="company_name" id="company" value="{{ user.company_name }}" 
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                    </div>
+
+                    <div>
+                        <label for="education" class="block mb-2 text-sm font-medium text-gray-900">Education</label>
+                        <input type="text" name="education" id="education" value="{{ user.education }}" 
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                               placeholder="e.g., BS in Computer Science, University Name">
+                    </div>
+                </div>
+
+                <!-- Location -->
+                <div class="space-y-4">
+                    <h4 class="text-base font-medium text-gray-900">Location</h4>
+                    
+                    <div>
+                        <label for="location" class="block mb-2 text-sm font-medium text-gray-900">Location</label>
+                        <input type="text" name="location" id="location" value="{{ user.location }}" 
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                               placeholder="City, Country">
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="space-y-4">
+                    <h4 class="text-base font-medium text-gray-900">Social Links</h4>
+                    
+                    <div>
+                        <label for="website" class="block mb-2 text-sm font-medium text-gray-900">Personal Website</label>
+                        <input type="url" name="website" id="website" value="{{ user.website }}" 
+                               class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+                               placeholder="https://example.com">
+                    </div>
+
+                    <div>
+                        <label for="github" class="block mb-2 text-sm font-medium text-gray-900">GitHub</label>
+                        <div class="flex">
+                            <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-lg">
+                                github.com/
+                            </span>
+                            <input type="text" name="github" id="github" value="{{ user.github }}" 
+                                   class="rounded-none rounded-r-lg bg-gray-50 border border-gray-300 text-gray-900 block flex-1 min-w-0 w-full text-sm p-2.5">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="twitter" class="block mb-2 text-sm font-medium text-gray-900">Twitter</label>
+                        <div class="flex">
+                            <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-lg">
+                                twitter.com/
+                            </span>
+                            <input type="text" name="twitter" id="twitter" value="{{ user.twitter }}" 
+                                   class="rounded-none rounded-r-lg bg-gray-50 border border-gray-300 text-gray-900 block flex-1 min-w-0 w-full text-sm p-2.5">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="linkedin" class="block mb-2 text-sm font-medium text-gray-900">LinkedIn</label>
+                        <div class="flex">
+                            <span class="inline-flex items-center px-3 text-sm text-gray-900 bg-gray-200 border border-r-0 border-gray-300 rounded-l-lg">
+                                linkedin.com/in/
+                            </span>
+                            <input type="text" name="linkedin" id="linkedin" value="{{ user.linkedin }}" 
+                                   class="rounded-none rounded-r-lg bg-gray-50 border border-gray-300 text-gray-900 block flex-1 min-w-0 w-full text-sm p-2.5">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script defer src="{% static 'js/profile.js' %}"></script>
+{% endblock %} 

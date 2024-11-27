@@ -1,0 +1,65 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zenset Dashboard</title>
+    <!-- Include Flowbite and Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet">
+    
+    <!-- ApexCharts - Single inclusion -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script defer src="{% static 'js/global.js' %}"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+
+<!-- Navbar -->
+{% include "dashboard/nav.html" %}
+
+<!-- Sidebar -->
+{% include "dashboard/sidebar.html" %}
+
+<!-- Main Content -->
+<div class="lg:ml-72 min-h-screen">
+    <div class="px-4 py-8 max-w-screen-2xl mx-auto mt-[4.5rem]">
+        <!-- Standard Header Section -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900">{% block page_title %}Page Title{% endblock %}</h1>
+                    <p class="mt-1 text-sm text-gray-600">{% block page_subtitle %}Page description goes here{% endblock %}</p>
+                </div>
+                {% block page_actions %}
+                <!-- Action buttons go here -->
+                {% endblock %}
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="{% block content_classes %}{% endblock %}">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</div>
+
+<!-- Messages -->
+{% include "components/messages.html" %}
+
+<!-- Flowbite JS -->
+<script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

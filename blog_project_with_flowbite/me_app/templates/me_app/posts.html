@@ -1,0 +1,236 @@
+{% extends 'dashboard/base.html' %}
+{% load me_app_custom_filters %}
+{% load static %}
+{% load humanize %}
+
+{% block page_title %}Posts{% endblock page_title %}
+{% block page_subtitle %}Manage your published and draft articles{% endblock page_subtitle %}
+
+{% block page_actions %}
+<a href="{% url 'blog:create_post' %}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none">
+    Create New Post
+</a>
+{% endblock %}
+
+{% block content_classes %}space-y-6{% endblock %}
+
+{% block content %}
+<div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+    <!-- Filters -->
+    <div class="p-6 border-b">
+        <form class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div class="flex flex-col sm:flex-row gap-4">
+                <!-- Search -->
+                <div class="relative">
+                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                    </div>
+                    <input type="search" name="search" value="{{ request.GET.search }}" class="block p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 w-full sm:w-60" placeholder="Search posts...">
+                </div>
+
+                <!-- Status Filter -->
+                <select name="publish" class="bg-gray-50 ml-auto border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full sm:w-40 p-2.5">
+                    <option value="">All Status</option>
+                    <option value="true" {% if request.GET.publish == 'true' %}selected{% endif %}>Published</option>
+                    <option value="false" {% if request.GET.publish == 'false' %}selected{% endif %}>Draft</option>
+                </select>
+
+                <!-- Sort -->
+                <select name="sort" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full sm:w-40 p-2.5">
+                    <option value="date_desc" {% if request.GET.sort == 'date_desc' %}selected{% endif %}>Newest First</option>
+                    <option value="date_asc" {% if request.GET.sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+                    <option value="views_desc" {% if request.GET.sort == 'views_desc' %}selected{% endif %}>Most Views</option>
+                    <option value="likes_desc" {% if request.GET.sort == 'likes_desc' %}selected{% endif %}>Most Likes</option>
+                    <option value="comments_desc" {% if request.GET.sort == 'comments_desc' %}selected{% endif %}>Most Comments</option>
+                </select>
+            </div>
+
+            <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
+                Apply Filters
+            </button>
+        </form>
+    </div>
+
+    <!-- Posts Table -->
+    <div class="relative overflow-x-auto min-h-[50vh]">
+        <table class="w-full text-sm text-left text-gray-500">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                <tr>
+                    <th scope="col" class="px-6 py-6 w-[45%]">Title</th>
+                    <th scope="col" class="px-6 py-6">Status</th>
+                    <th scope="col" class="px-6 py-6">Stats</th>
+                    <th scope="col" class="px-6 py-6">Date</th>
+                    <th scope="col" class="px-6 py-6">
+                        <span class="sr-only">Actions</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for post in posts %}
+                    <tr class="bg-white border-b hover:bg-gray-50 {% if forloop.last %}border-none{% endif %}">
+                        <th scope="row" class="px-6 py-4">
+                            <div class="flex items-center space-x-3">
+                                {% if post.image %}
+                                    <img src="{{ post.image.url }}" class="w-10 h-10 flex-shrink-0 rounded-lg object-cover" alt="{{ post.title }}">
+                                {% else %}
+                                    <img src="https://images.unsplash.com/photo-1616046281657-378fa73464a5?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="w-10 h-10 flex-shrink-0 rounded-lg object-cover" alt="{{ post.title }}">
+                                {% endif %}
+                                <div>
+                                    <a href="{% url 'blog:post_detail' post.author.username post.slug %}" class="font-medium text-gray-900 hover:underline line-clamp-2">{{ post.title }}</a>
+                                </div>
+                            </div>
+                        </th>
+                        <td class="px-6 py-4">
+                            {% if post.is_published %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    Published
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    Draft
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex items-center text-gray-500" title="Views">
+                                    <svg class="w-[1.125rem] h-[1.125rem] mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                        <path fill-rule="evenodd" d="M4.998 7.78C6.729 6.345 9.198 5 12 5c2.802 0 5.27 1.345 7.002 2.78a12.713 12.713 0 0 1 2.096 2.183c.253.344.465.682.618.997.14.286.284.658.284 1.04s-.145.754-.284 1.04a6.6 6.6 0 0 1-.618.997 12.712 12.712 0 0 1-2.096 2.183C17.271 17.655 14.802 19 12 19c-2.802 0-5.27-1.345-7.002-2.78a12.712 12.712 0 0 1-2.096-2.183 6.6 6.6 0 0 1-.618-.997C2.144 12.754 2 12.382 2 12s.145-.754.284-1.04c.153-.315.365-.653.618-.997A12.714 12.714 0 0 1 4.998 7.78ZM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd"/>
+                                    </svg>
+                                    {{ post.views_count|intcomma|default:"0" }}
+                                </div>
+                                <div class="flex items-center text-gray-500" title="Likes">
+                                    <svg class="w-[1.125rem] h-[1.125rem] mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                        <path fill-rule="evenodd" d="M15.03 9.684h3.965c.322 0 .64.08.925.232.286.153.532.374.717.645a2.109 2.109 0 0 1 .242 1.883l-2.36 7.201c-.288.814-.48 1.355-1.884 1.355-2.072 0-4.276-.677-6.157-1.256-.472-.145-.924-.284-1.348-.404h-.115V9.478a25.485 25.485 0 0 0 4.238-5.514 1.8 1.8 0 0 1 .901-.83 1.74 1.74 0 0 1 1.21-.048c.396.13.736.397.96.757.225.36.32.788.269 1.211l-1.562 4.63ZM4.177 10H7v8a2 2 0 1 1-4 0v-6.823C3 10.527 3.527 10 4.176 10Z" clip-rule="evenodd"/>
+                                    </svg>
+                                    {{ post.likes_count|intcomma|default:"0" }}
+                                </div>
+                                <div class="flex items-center text-gray-500" title="Comments">
+                                    <svg class="w-[1.125rem] h-[1.125rem] mr-1" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                        <path fill-rule="evenodd" d="M3 5.983C3 4.888 3.895 4 5 4h14c1.105 0 2 .888 2 1.983v8.923a1.992 1.992 0 0 1-2 1.983h-6.6l-2.867 2.7c-.955.899-2.533.228-2.533-1.08v-1.62H5c-1.105 0-2-.888-2-1.983V5.983Zm5.706 3.809a1 1 0 1 0-1.412 1.417 1 1 0 1 0 1.412-1.417Zm2.585.002a1 1 0 1 1 .003 1.414 1 1 0 0 1-.003-1.414Zm5.415-.002a1 1 0 1 0-1.412 1.417 1 1 0 1 0 1.412-1.417Z" clip-rule="evenodd"/>
+                                    </svg>
+                                    {{ post.comments_count|intcomma|default:"0" }}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            {{ post.created_at|date:"M d, Y" }}
+                        </td>
+                        <td class="px-6 py-4">
+                            <button id="post-{{ post.id }}-dropdown-button" data-dropdown-toggle="post-{{ post.id }}-dropdown" class="inline-flex items-center text-sm font-medium hover:bg-gray-100 text-gray-500 hover:text-gray-900 rounded-lg p-2">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z"/>
+                                </svg>
+                            </button>
+                            <div id="post-{{ post.id }}-dropdown" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44">
+                                <ul class="py-2 text-sm text-gray-700">
+                                    <li>
+                                        <a href="{% url 'blog:edit_post' post.id %}" class="freeze-button block px-4 py-2 hover:bg-gray-100">Edit</a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'blog:change_post_status' post.id %}" class="freeze-button block px-4 py-2 hover:bg-gray-100">
+                                            {% if post.is_pinned %}Unpin from {% else %}Pin to {% endif %}profile
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'blog:disable_comments' post.id %}" class="freeze-button block px-4 py-2 hover:bg-gray-100">
+                                            {% if post.disable_comments %}Enable{% else %}Disable{% endif %} comments
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'blog:change_post_status' post.id %}" class="freeze-button block px-4 py-2 hover:bg-gray-100">
+                                            {% if post.is_published %}Unpublish{% else %}Publish{% endif %} post
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <button type="button" data-modal-target="delete-modal-{{ post.id }}" data-modal-toggle="delete-modal-{{ post.id }}" class="block w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100">Delete</button>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- --- Delete Modal --- -->
+                    <div id="delete-modal-{{ post.id }}" tabindex="-1" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+                        <div class="relative p-4 w-full max-w-md max-h-full">
+                            <div class="relative bg-white rounded-lg shadow">
+                                <button type="button" class="absolute top-3 end-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="delete-modal-{{ post.id }}">
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                    </svg>
+                                    <span class="sr-only">Close modal</span>
+                                </button>
+                                <div class="p-4 md:p-5 text-center">
+                                    <svg class="mx-auto mb-4 text-gray-400 w-12 h-12" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11V6m0 8h.01M19 10a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                    </svg>
+                                    <h3 class="mb-5 text-lg font-normal text-gray-500">Are you sure you want to delete this post?</h3>
+                                    <a href="{% url 'blog:delete_post' post.id %}" class="freeze-button text-white bg-red-600 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center me-2">
+                                        Yes, I'm sure
+                                    </a>
+                                    <button data-modal-hide="delete-modal-{{ post.id }}" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">
+                                        No, cancel
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No posts found</h3>
+                            <p class="mt-1 text-sm text-gray-500">Get started by creating a new post.</p>
+                            <div class="mt-6">
+                                <a href="{% url 'blog:create_post' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    Create New Post
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- --- Pagination --- -->
+    <div class="flex items-center justify-between border-t border-gray-200 px-4 py-3 sm:px-6">
+        <div class="flex flex-1 justify-between sm:hidden">
+            {% if posts.has_previous %}
+                <a href="?page={{ posts.previous_page_number }}&{% if request.session.query_params %}{{ request.session.query_params }}{% endif %}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Previous</a>
+            {% endif %}
+            {% if posts.has_next %}
+                <a href="?page={{ posts.next_page_number }}&{% if request.session.query_params %}{{ request.session.query_params }}{% endif %}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">Next</a>
+            {% endif %}
+        </div>
+        <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+            <div>
+                <p class="text-sm text-gray-700">
+                    Showing <span class="font-medium">{{ posts.start_index }}</span> to <span class="font-medium">{{ posts.end_index }}</span> of <span class="font-medium">{{ posts.paginator.count }}</span> results
+                </p>
+            </div>
+            <div>
+                <nav class="isolate inline-flex -space-x-px rounded-md overflow-hidden shadow-sm border border-gray-300 space-x-[1px] bg-gray-300" aria-label="Pagination">
+                    {% get_proper_elided_page_range posts.paginator posts.number as page_range %}
+                    {% for i in page_range %}
+                        {% if i == '...' %}
+                            <span class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-700 bg-white">...</span>
+                        {% else %}
+                            {% if posts.number == i %}
+                                <span class="relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus:z-20">{{ i }}</span>
+                            {% else %}
+                                <a href="?page={{ i }}{% if query_string %}&{{query_string}}{% endif %}" class="relative inline-flex items-center bg-white px-4 py-2 text-sm font-semibold text-gray-900 hover:bg-gray-50 focus:z-20">{{ i }}</a>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                </nav>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %} 

@@ -1,0 +1,58 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+{% block page_title %}Tags{% endblock %}
+{% block page_subtitle %}Tags you follow{% endblock %}
+
+{% block content_classes %}grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4{% endblock %}
+
+{% block content %}
+    {% for tag in tags %}
+        <div class="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4 flex flex-col items-start justify-between transition-all duration-300 hover:shadow-lg">
+            <div class="w-full flex flex-row items-start justify-between">
+                <div class="w-full flex items-center">
+                    <div class="w-10 h-10 mr-3 rounded-lg overflow-hidden flex-shrink-0">
+                        {% if tag.image %}
+                            <img src="{{ tag.image.url }}" 
+                                 alt="{{ tag.name }}" 
+                                 class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
+                                <span class="text-blue-600 text-lg font-bold">#</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <a href="{% url 'blog:tag_detail' slug=tag.slug %}" class="text-gray-800 hover:underline text-base font-semibold">{{ tag.name }}</a>
+                        <p class="text-gray-600 text-sm truncate line-clamp-3 text-wrap max-w-72" >@{{ tag.slug }}</p>
+                    </div>
+                </div>
+                <a href="{% url 'blog:follow_tag' tag.id %}" class="inline-block h-max bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-full {% if tag.is_following %}bg-red-600 hover:bg-red-700{% endif %}">
+                    {% if tag.is_following %}
+                        Unfollow
+                    {% else %}
+                        Follow
+                    {% endif %}
+                </a>
+            </div>
+            <div class="w-full flex start mt-6 items-center">
+                <span class="text-xs text-gray-500">Followed {{ tag.tag_follows.first.created_at|naturaltime }}</span>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-span-full">
+            <div class="text-center py-12 bg-white border border-gray-200 rounded-xl shadow-sm">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No tags yet</h3>
+                <p class="mt-1 text-sm text-gray-500">Follow tags to see their posts in your feed!</p>
+                <div class="mt-6">
+                    <a href="{% url 'suggestion:tags' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Browse Tags
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %} 

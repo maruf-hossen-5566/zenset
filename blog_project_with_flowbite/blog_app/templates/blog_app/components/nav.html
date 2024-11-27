@@ -1,0 +1,22 @@
+{% if request.resolver_match.url_name == 'index' or request.resolver_match.url_name == 'following' or request.resolver_match.url_name == 'trending' or request.resolver_match.url_name == 'latest' %}
+        <div class="bg-red-5 w-full py-6 pb-12">
+            <div class="max-w-screen-2xl w-full mx-auto flex items-center">
+                <div class="w-full relative">
+                    <div class="max-w-full w-full flex flex-row gap-2 overflow-auto scrollbar-hide">
+                        <a href="{% url 'blog:index' %}" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-full text-sm px-4 py-2 {% if request.resolver_match.url_name == 'index' %} !text-white !border-blue-600 !bg-blue-600 {% endif %}">
+                            Personalized
+                        </a>
+                        <a href="{% url 'blog:following' %}" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-full text-sm px-4 py-2 {% if request.resolver_match.url_name == 'following' %} !text-white !border-blue-600 !bg-blue-600 {% endif %} ">
+                            Following
+                        </a>
+                        <a href="{% url 'blog:trending' %}" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-full text-sm px-4 py-2 {% if request.resolver_match.url_name == 'trending' %} !text-white !border-blue-600 !bg-blue-600 {% endif %} ">
+                            Trending
+                        </a>
+                        <a href="{% url 'blog:latest' %}" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-full text-sm px-4 py-2 {% if request.resolver_match.url_name == 'latest' %} !text-white !border-blue-600 !bg-blue-600 {% endif %}">
+                            Latest
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}

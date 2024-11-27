@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-screen-xl mx-auto p-4">
+  <h1 class="text-3xl font-bold mb-4">Your Profile</h1>
+  <div class="bg-white border border-gray-200 rounded-lg shadow-md p-6">
+    <div class="flex items-center mb-4">
+      <img class="w-24 h-24 rounded-full mr-4" src="{{ user.profile.avatar.url }}" alt="User avatar">
+      <div>
+        <h2 class="text-2xl font-semibold">{{ user.username }}</h2>
+        <p class="text-gray-600">{{ user.email }}</p>
+      </div>
+    </div>
+    <div class="mb-4">
+      <h3 class="text-xl font-semibold mb-2">Bio</h3>
+      <p class="text-gray-700">{{ user.profile.bio }}</p>
+    </div>
+    <div class="mb-4">
+      <h3 class="text-xl font-semibold mb-2">Your Posts</h3>
+      <ul class="list-disc list-inside">
+        {% for post in user.posts.all %}
+        <li><a href="{% url 'blog:post_detail' post.slug %}" class="text-blue-600 hover:underline">{{ post.title }}</a></li>
+        {% empty %}
+        <li class="text-gray-600">You haven't created any posts yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <a href="{% url 'blog:edit_profile' %}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+      Edit Profile
+      <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+    </a>
+  </div>
+</div>
+{% endblock %}

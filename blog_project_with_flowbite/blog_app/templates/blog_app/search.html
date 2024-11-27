@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<div class="mx-auto py-24">
+    <div class="w-full pb-24 mb-24 border-b border-gray-200">
+        <h1 class="max-w-screen-2xl px-4 mx-auto text-3xl font-bold">Search Results for: <span class="text-blue-500">{{ q }}</span></h1>
+    </div>
+
+    {% if not for_posts and not for_users and not for_categories and not for_tags %}
+        <div class="text-center py-12">
+            <h2 class="text-2xl font-semibold mb-4">No results found</h2>
+            <p class="text-gray-600">Try different keywords or check your spelling.</p>
+        </div>
+    {% else %}
+        <div class="max-w-screen-2xl mx-auto px-4 grid grid-cols-1 md:grid-cols-7 lg:grid-cols-6 gap-x-8 lg:gap-x-12 ">
+            <!-- --- Posts Section --- -->
+            <section class="order-2 md:order-first md:col-span-4 mb-12">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold">Posts</h2>
+                    {% if for_posts %}
+                        <a href="{% url 'search:search_posts' %}?q={{ q }}" class="text-blue-500 hover:underline">See all</a>
+                    {% endif %}
+                </div>
+                <div class="w-full grid grid-cols-1 lg:grid-cols-2 gap-6 ">
+                    {% for post in for_posts %}
+                        <article class="group relative flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                            <!-- Image with overlay -->
+                            <div class="relative h-64 flex flex-col overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                    alt="{{ post.title }}" 
+                                    class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                <!-- Category Badge -->
+                                {% if post.category %}
+                                    <a href="{% url 'blog:category' slug=post.category.slug %}" class="absolute top-4 left-4 bg-gray-100 text-black text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200">
+                                        {{ post.category.name }}
+                                    </a>
+                                {% endif %}
+                            </div>
+
+                            <!-- Content -->
+                            <div class="h-64 flex flex-col p-6">
+                                <!-- Title -->
+                                <a title="{{ post.title }}" href="{% url 'blog:post_detail' username=post.author.username slug=post.slug %}" class="text-xl font-bold text-gray-900 mb-3 w-full hover:underline line-clamp-2">
+                                    {{ post.title }}
+                                </a>
+                                <!-- Preview Text -->
+                                <p class="text-gray-600 text-sm line-clamp-3 mb-4">
+                                    {% if post.content_preview %}
+                                        {{ post.content_preview|safe|striptags|truncatechars:200 }}
+                                    {% else %}
+                                        {{ post.content|safe|striptags|truncatechars:200 }}
+                                    {% endif %}
+                                </p>
+
+                                <!-- Meta Info -->
+                                <div class="mt-auto flex items-center justify-between pt-4 border- border-gray-100">
+                                    <div class="flex items-center gap-3">
+                                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                            alt="{{ post.author.full_name }}" 
+                                            class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                                        <div>
+                                            <p class="text-sm font-semibold text-gray-900">{{ post.author.full_name }}</p>
+                                            <div class="flex items-center gap-2 text-sm text-gray-500">
+                                                <span>{{ post.created_at|date:"M d, Y" }}</span>
+                                                <span>•</span>
+                                                <span>{{ post.read_time|default:5 }} min read</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% empty %}
+                        <p class="border border-gray-200 lg:col-span-2 flex items-center justify-center py-44 w-full rounded-xl text-center text-gray-600">No data found.</p>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <div class="w-full col-span-1 md:col-span-3 lg:col-span-2">
+                <!-- --- Users Section --- -->
+                
+                <section class="w-full mb-12">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold ">Users</h2>
+                        {% if for_users %}
+                            <a href="{% url 'search:search_users' %}?q={{ q }}" class="text-blue-500 hover:underline">See all</a>
+                        {% endif %}
+                    </div>
+                    <div class="w-full flex flex-col items-start gap-6">
+                        {% for user in for_users|slice:":12" %}
+                            <div class="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4 flex items-center justify-between transition-all duration-300 hover:shadow-lg">
+                                <div class="flex items-center">
+                                    <img class="w-10 h-10 rounded-full mr-3" src="https://images.pexels.com/photos/14785828/pexels-photo-14785828.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="{{ user.full_name }}">
+                                    <div>
+                                        <h5 class="text-gray-800 text-base font-semibold">{{ user.full_name }}</h5>
+                                        <p class="text-gray-600 text-sm truncate line-clamp-2 text-wrap max-w-72" >{{ user.bio|default:user.username }}</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="bg-white hover:bg-gray-200 duration-300 text-blue-500 ring-1 ring-gray-200 rounded-full p-1">
+                                    {% if not user == request.user %}
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                        </svg>
+                                    {% else %}
+                                        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.779 17.779 4.36 19.918 6.5 13.5m4.279 4.279 8.364-8.643a3.027 3.027 0 0 0-2.14-5.165 3.03 3.03 0 0 0-2.14.886L6.5 13.5m4.279 4.279L6.499 13.5m2.14 2.14 6.213-6.504M12.75 7.04 17 11.28"/>
+                                        </svg>
+                                    {% endif %}
+                                </button>
+                            </div>
+                        {% empty %}
+                            <p class="border border-gray-200 flex items-center justify-center min-h-44 rounded-xl w-full text-center text-gray-600">No data found.</p>
+                        {% endfor %}
+                    </div>
+                </section>
+
+                <!-- --- Tags Section --- -->
+                <section class="mb-12">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold">Tags</h2>
+                        {% if for_tags %}
+                            <a href="{% url 'search:search_tags' %}?q={{ q }}" class="text-blue-600 hover:underline">See all</a>
+                        {% endif %}
+                    </div>
+                    <div class="flex flex-wrap gap-6">
+                        {% for tag in for_tags|slice:":10" %}
+                            <div class="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4 flex items-center justify-between transition-all duration-300 hover:shadow-lg">
+                                <div class="flex items-center">
+                                    <div>
+                                        <h5 class="text-gray-800 text-base font-semibold">{{ tag.name }}</h5>
+                                        <p class="text-gray-600 text-sm truncate line-clamp-2 text-wrap max-w-72" >{{ tag.description|default:tag.name }}</p>
+                                    </div>
+                                </div>
+                                <button type="button" class="bg-white hover:bg-gray-200 duration-300 text-blue-500 ring-1 ring-gray-200 rounded-full p-1">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        {% empty %}
+                            <p class="border border-gray-200 flex items-center justify-center min-h-44 rounded-xl w-full text-center text-gray-600">No data found.</p>
+                        {% endfor %}
+                    </div>
+                </section>
+                
+            </div>
+        </div>
+    {% endif %}
+
+</div>
+{% endblock %}

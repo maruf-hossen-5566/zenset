@@ -1,0 +1,53 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}Settings{% endblock page_title %}
+{% block page_subtitle %}Manage your email and notification preferences{% endblock page_subtitle %}
+
+{% block content %}
+<div class="p-6 bg-white rounded-lg shadow-md">
+    <h1 class="text-2xl font-semibold text-gray-800">General</h1>
+    <p class="mt-2 text-gray-600">Manage your email and notification preferences.</p>
+    
+    <!-- Preferences Section -->
+    <div class="mt-6">
+        <h2 class="text-lg font-semibold text-gray-900">Your Preferences</h2>
+        <div class="mt-4 space-y-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-700">Newsletter</h3>
+                    <p class="text-xs text-gray-500">Subscribe to our newsletter for updates.</p>
+                </div>
+                <input type="checkbox" class="toggle-checkbox">
+            </div>
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-700">Promotional Emails</h3>
+                    <p class="text-xs text-gray-500">Receive promotional content and offers.</p>
+                </div>
+                <input type="checkbox" class="toggle-checkbox">
+            </div>
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-700">Email Notifications</h3>
+                    <p class="text-xs text-gray-500">Get notified about important updates via email.</p>
+                </div>
+                <input type="checkbox" class="toggle-checkbox">
+            </div>
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-700">SMS Notifications</h3>
+                    <p class="text-xs text-gray-500">Receive SMS alerts for urgent notifications.</p>
+                </div>
+                <input type="checkbox" class="toggle-checkbox">
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Changes Button -->
+    <div class="mt-6">
+        <button type="submit" class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none">
+            Save Changes
+        </button>
+    </div>
+</div>
+{% endblock %} 

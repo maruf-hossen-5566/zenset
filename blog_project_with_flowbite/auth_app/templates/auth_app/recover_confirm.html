@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reset Password - Zenset</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+    <script defer src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <section class="bg-gray-50">
+        <div class="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
+            <a href="{% url 'blog:index' %}" class="flex items-center mb-6 text-2xl font-semibold text-gray-900">
+                <img class="w-10 h-10 mr-2" src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/logo.svg" alt="Zenset Logo">
+                Zenset
+            </a>
+            <div class="w-full bg-white rounded-lg shadow-lg md:mt-0 sm:max-w-md xl:p-0">
+                <div class="p-6 space-y-4 md:space-y-6 sm:p-8">
+                    <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl text-center">
+                        Reset Your Password
+                    </h1>
+                    <p class="text-sm text-gray-600 text-center mb-6">
+                        Please enter your new password below.
+                    </p>
+                    <form class="space-y-4 md:space-y-6" method="post">
+                        {% csrf_token %}
+                        <div>
+                            <label for="password" class="block mb-2 text-sm font-medium text-gray-900">New Password</label>
+                            <input type="password" name="password" id="password" 
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" 
+                                placeholder="••••••••" required minlength="8" autocomplete="new-password">
+                            <p class="mt-1 text-sm text-gray-500">Must be at least 8 characters long</p>
+                        </div>
+                        <div>
+                            <label for="password2" class="block mb-2 text-sm font-medium text-gray-900">Confirm Password</label>
+                            <input type="password" name="password2" id="password2" 
+                                class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5" 
+                                placeholder="••••••••" required autocomplete="new-password" minlength="8">
+                        </div>
+                        <button type="submit" 
+                            class="w-full text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 text-center transition-colors duration-200">
+                            Reset Password
+                        </button>
+                        <p class="text-sm font-light text-gray-500 text-center">
+                            Remember your password? <a href="{% url 'auth:login' %}" class="font-medium text-blue-600 hover:underline">Sign in</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+    {% if messages %}
+        {% include 'components/messages.html' %}
+    {% endif %}
+</body>
+</html>

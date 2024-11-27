@@ -1,0 +1,20 @@
+  # front-end:
+  - library-name: Flowbite
+  - version: 2.5.2
+  - style-cdn: https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css
+  - script-cdn: https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js
+  - get components from: flowbite.com
+  - get components inspiration from: flowbite.com
+
+  # project info :
+  - name: Zenset
+  - description: Zenset is a Blogging website.
+  - tech-stack:
+    - front-end: Tailwind CSS, Flowbite
+    - back-end: Django, Python
+
+  # style preferences:
+  - use google font: Inter
+  - do not use dark mode - all container should be light background
+  - use flowbite
+

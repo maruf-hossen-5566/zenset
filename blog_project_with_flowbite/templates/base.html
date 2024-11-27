@@ -1,0 +1,44 @@
+{% load static %}
+{% load custom_filters %}
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth ">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Blog{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+    <script defer src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+    {% if request.path == '/' or request.path|match_path:'category,0' %}
+        <script defer src="{% static 'js/category_scroll.js' %}"></script>
+    {% endif %}
+    <script defer src="{% static 'js/global.js' %}"></script>
+    <style>
+        .scrollbar-none::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-white font-[Inter] ">
+    {% if request.user.is_authenticated %}
+        {% include 'components/auth_nav.html' %}
+    {% else %}
+        {% include 'components/unauth_nav.html' %}
+    {% endif %}
+    
+    <main class="w-full min-h-[calc(100vh-4.375rem)] mx-auto">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% if messages %}
+        {% include 'components/messages.html' %}
+    {% endif %}
+
+    <div class=" {% block footer_class %}bg-gray-50{% endblock footer_class %} ">
+        {% include 'components/footer.html' %}
+    </div>
+    {% block extra_js %}{% endblock extra_js %}
+</body>
+</html>

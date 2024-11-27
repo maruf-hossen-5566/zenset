@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Tags - {{ q }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto py-24">
+    <div class="w-full pb-24 mb-24 border-b border-gray-200">
+        <h1 class="max-w-screen-2xl px-4 mx-auto text-3xl font-bold">Search Results for Tags: <span class="text-blue-500">{{ q }}</span></h1>
+    </div>
+
+    <div class="max-w-screen-2xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-24">
+        {% for tag in tags %}
+            <div class="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4 flex items-start justify-between transition-all duration-300 hover:shadow-lg">
+                <div class="flex items-center">
+                    <div>
+                        <h5 class="text-gray-800 text-base font-semibold">{{ tag.name }}</h5>
+                        <p class="text-gray-600 text-sm truncate line-clamp-3 text-wrap max-w-72" >{{ tag.description|default:tag.name }}</p>
+                    </div>
+                </div>
+                <a href="{% url 'blog:follow_tag' tag.id %}" class="bg-white self-start hover:bg-gray-200 duration-300 text-blue-500 ring-1 ring-gray-200 rounded-full p-1 {% if tag.is_following %} text-red-500 {% endif %}">
+                    {% if not tag.is_following %}
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                    {% else %}
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6"></path>
+                        </svg>
+                    {% endif %}
+                </a>
+            </div>
+        {% empty %}
+            <div class="col-span-1 md:col-span-2 lg:col-span-3 flex flex-col items-center justify-center py-24 border border-gray-200 rounded-lg">
+                <p class="text-lg text-gray-600 font-medium">No tags found matching your search.</p>
+                <p class="text-sm text-gray-500">Try searching with a different keyword</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- --- Pagination --- -->
+    <div class="max-w-screen-2xl w-full px-4 mx-auto flex items-center justify-end">
+        {% if previous_page %}
+            <a href="?q={{request.GET.q}}&page={{ previous_page }}" class="flex items-center justify-center px-4 h-10 me-3 text-base font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 ">
+                <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                </svg>
+                Previous
+            </a>
+        {% endif %}
+        {% if next_page %}
+            <a href="?q={{request.GET.q}}&page={{ next_page }}" class="flex items-center justify-center px-4 h-10 text-base font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 ">
+                Next
+                <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                </svg>
+            </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

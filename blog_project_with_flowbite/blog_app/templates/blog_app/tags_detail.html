@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Tags - Zenset{% endblock %}
+
+{% block content %}
+<div class="mx-auto py-24">
+    <div class="w-full pb-24 mb-24 border-b border-gray-200">
+        <div class="max-w-screen-2xl mx-auto w-full px-4">
+            <h1 class="mx-auto text-3xl font-bold">{{ tag.name }}</h1>
+            <p class="max-w-4xl text-gray-600">{{ tag.description|default:"No description available" }}</p>
+        </div>
+    </div>
+
+    <div class="max-w-screen-2xl mx-auto w-full px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-24">
+        {% for post in page_obj %}
+            <article class="group relative flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <!-- Image with overlay -->
+                <div class="relative h-64 flex flex-col overflow-hidden">
+                    <img src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                        alt="{{ post.title }}" 
+                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                    <!-- Category Badge -->
+                    {% if post.tag %}
+                        <a href="{% url 'blog:tag' slug=post.tag.slug %}" class="absolute top-4 left-4 bg-gray-100 text-black text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200">
+                            {{ post.tag.name }}
+                        </a>
+                    {% endif %}
+                </div>
+
+                <!-- Content -->
+                <div class="h-64 flex flex-col p-6">
+                    <!-- Title -->
+                    <a title="{{ post.title }}" href="{% url 'blog:post_detail' username=post.author.username slug=post.slug %}" class="text-xl font-bold text-gray-900 mb-3 w-full hover:underline line-clamp-2">
+                        {{ post.title }}
+                    </a>
+                    <!-- Preview Text -->
+                    <p class="text-gray-600 text-sm line-clamp-3 mb-4">
+                        {% if post.content_preview %}
+                            {{ post.content_preview|safe|striptags|truncatechars:200 }}
+                        {% else %}
+                            {{ post.content|safe|striptags|truncatechars:200 }}
+                        {% endif %}
+                    </p>
+
+                    <!-- Meta Info -->
+                    <div class="mt-auto flex items-center justify-between pt-4 border- border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                alt="{{ post.author.full_name }}" 
+                                class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                            <div>
+                                <p class="text-sm font-semibold text-gray-900">{{ post.author.full_name }}</p>
+                                <div class="flex items-center gap-2 text-sm text-gray-500">
+                                    <span>{{ post.created_at|date:"M d, Y" }}</span>
+                                    <span>•</span>
+                                    <span>{{ post.read_time|default:5 }} min read</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <p class="text-center text-gray-600">No posts found.</p>
+        {% endfor %}
+    </div>
+
+    <!-- --- Pagination --- -->
+    {% if previous_page or next_page %}
+        <div class="max-w-screen-2xl mx-auto w-full flex items-center justify-end">
+            <div class="w-full px-4 flex items-center justify-end">
+                {% if previous_page %}
+                    <a href="?page={{ previous_page }}" class="flex items-center justify-center px-4 h-10 me-3 text-base font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 ">
+                        <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                        </svg>
+                        Previous
+                    </a>
+                {% endif %}
+                {% if next_page %}
+                    <a href="?page={{ next_page }}" class="flex items-center justify-center px-4 h-10 text-base font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 ">
+                        Next
+                        <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                        </svg>
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+    
+
+</div>
+{% endblock %}

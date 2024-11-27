@@ -1,0 +1,104 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}Email notifications{% endblock page_title %}
+{% block page_subtitle %}Customize your email notification preferences{% endblock page_subtitle %}
+
+{% block page_actions %}
+<button type="submit" form="profile-form" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 focus:outline-none">
+    Save Changes
+</button>
+{% endblock %}
+
+{% block content %}
+<!-- Demo Notice Banner -->
+<div class="p-4 mb-6 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
+    <div class="flex items-center">
+        <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+        </svg>
+        <span class="font-medium">Note:</span>&nbsp;This page is for demonstration purposes and is not functional.
+    </div>
+</div>
+
+<div class="grid grid-cols-1 gap-6">
+    <!-- Engagement updates Section -->
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900">Engagement updates</h3>
+            <p class="text-sm text-gray-500 mt-1">Activities related to you and your content</p>
+            
+            <div class="mt-6 space-y-6">
+                <!-- Comment Notifications -->
+                <div class="flex">
+                    <div class="flex items-center h-5">
+                        <input id="comment-emails-checkbox" aria-describedby="comment-emails-text" type="checkbox" class="mt-[0.2rem] size-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    </div>
+                    <div class="ms-2 text-sm">
+                        <label for="comment-emails-checkbox" class="font-medium text-base text-gray-900">Replies, Responses, Reactions, Mentions etc.</label>
+                        <p id="comment-emails-text" class="text-sm text-gray-500">Get notified about interactions with your content</p>
+                    </div>
+                </div>
+
+                <!-- New Followers Weekly -->
+                <div class="flex">
+                    <div class="flex items-center h-5">
+                        <input id="follower-emails-checkbox" aria-describedby="follower-emails-text" type="checkbox" class="mt-[0.2rem] size-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    </div>
+                    <div class="ms-2 text-sm">
+                        <label for="follower-emails-checkbox" class="font-medium text-base text-gray-900">New Followers Weekly</label>
+                        <p id="follower-emails-text" class="text-sm text-gray-500">Get weekly stats about new followers.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content performance Section -->
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900">Content performance</h3>
+            <div class="mt-6 space-y-6">
+                <div class="flex">
+                    <div class="flex items-center h-5">
+                        <input id="stats-emails-checkbox" aria-describedby="stats-emails-text" type="checkbox" class="mt-[0.2rem] size-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    </div>
+                    <div class="ms-2 text-sm">
+                        <label for="stats-emails-checkbox" class="font-medium text-base text-gray-900">Monthly blog posts stats newsletter</label>
+                        <p id="stats-emails-text" class="text-sm text-gray-500">Get monthly stats for your blog posts via email.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Communication updates Section -->
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm">
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-900">Communication updates</h3>
+            <div class="mt-6 space-y-6">
+                <!-- Weekly Newsletter -->
+                <div class="flex">
+                    <div class="flex items-center h-5">
+                        <input id="newsletter-emails-checkbox" aria-describedby="newsletter-emails-text" type="checkbox" class="mt-[0.2rem] size-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    </div>
+                    <div class="ms-2 text-sm">
+                        <label for="newsletter-emails-checkbox" class="font-medium text-base text-gray-900">Zenset weekly</label>
+                        <p id="newsletter-emails-text" class="text-sm text-gray-500">Curated weekly newsletter with best stories and discussions.</p>
+                    </div>
+                </div>
+
+                <!-- General Announcements -->
+                <div class="flex">
+                    <div class="flex items-center h-5">
+                        <input id="announcements-checkbox" aria-describedby="announcements-text" type="checkbox" class="mt-[0.2rem] size-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">
+                    </div>
+                    <div class="ms-2 text-sm">
+                        <label for="announcements-checkbox" class="font-medium text-base text-gray-900">General announcements</label>
+                        <p id="announcements-text" class="text-sm text-gray-500">Product updates, feature additions, etc.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

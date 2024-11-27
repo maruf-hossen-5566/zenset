@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block title %}Zenset - Your Blogging Home{% endblock %}
+
+{% block content %}
+<div class="max-w-screen-2xl w-full px-4 mx-auto bg-white">
+    <!-- --- Navbar --- -->
+    {% include 'blog_app/components/nav.html' %}
+
+    <div class="w-full mx-auto pb-24">
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-8 mb-20">
+            <!-- --- Posts --- -->
+            {% if page_obj %}
+                <section class="col-span-2 lg:col-span-4">
+                    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-8">
+                        {% for post in page_obj %}
+                            <article class="group relative flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                                <!-- Image with overlay -->
+                                <div class="relative h-64 flex flex-col overflow-hidden">
+                                    <img src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                        alt="{{ post.title }}" 
+                                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                    <!-- Category Badge -->
+                                    {% if post.category %}
+                                        <a href="{% url 'blog:category' slug=post.category.slug %}" class="absolute top-4 left-4 bg-gray-100 text-black text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200">
+                                            {{ post.category.name }}
+                                        </a>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Content -->
+                                <div class="h-64 flex flex-col p-6">
+                                    <!-- Title -->
+                                    <a title="{{ post.title }}" href="{% url 'blog:post_detail' username=post.author.username slug=post.slug %}" class="text-xl font-bold text-gray-900 mb-3 w-full hover:underline line-clamp-2">
+                                        {{ post.title }}
+                                    </a>
+                                    <!-- Preview Text -->
+                                    <p class="text-gray-600 text-sm line-clamp-3 mb-4">
+                                        {% if post.content_preview %}
+                                            {{ post.content_preview|safe|striptags|truncatechars:200 }}
+                                        {% else %}
+                                            {{ post.content|safe|striptags|truncatechars:200 }}
+                                        {% endif %}
+                                    </p>
+
+                                    <!-- Meta Info -->
+                                    <div class="mt-auto flex items-center justify-between pt-4 border- border-gray-100">
+                                        <div class="flex items-center gap-3">
+                                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                                alt="{{ post.author.full_name }}" 
+                                                class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                                            <div>
+                                                <p class="text-sm font-semibold text-gray-900">{{ post.author.full_name }}</p>
+                                                <div class="flex items-center gap-2 text-sm text-gray-500">
+                                                    <span>{{ post.created_at|date:"M d, Y" }}</span>
+                                                    <span>•</span>
+                                                    <span>{{ post.read_time|default:5 }} min read</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% else %}
+                <p class="w-full col-span-2 lg:col-span-4 mx-auto py-12 text-center text-gray-500">No post found!</p>
+            {% endif %}
+
+            <!-- --- Who to follow --- -->
+            {% if who_to_follow %}
+                <section class="col-span-2 lg:col-span-4 bg-gray-50 p-6 border border-gray-200 rounded-xl">
+                    <div class="w-full mb-8 flex items-center justify-between">
+                        <h2 class="text-xl capitalize font-bold text-gray-800 font-inter flex items-center">Who to follow</h2>
+                        <a href="#" class="text-sm text-blue-500 hover:underline">See more</a>
+                    </div>
+                    <div class="grid md:grid-cols-2 xl:grid-cols-3 gap-2 lg:gap-4">
+                        {% for user in who_to_follow %}
+                            <article class="p-4 flex flex-row bg-white rounded-xl shadow-sm gap-6 border border-gray-200 overflow-hidden">
+                                <!-- Content -->
+                                <div class="w-full flex flex-col">
+                                    <!-- Meta Info -->
+                                    <div class="mt-auto flex items-start justify-between">
+                                        <div class="flex items-start gap-3">
+                                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                                alt="{{ user.full_name }}" 
+                                                class="w-10 h-10 rounded-full flex-shrink-0 object-cover border-2 border-white shadow-sm">
+                                            <div>
+                                                <a href="{% url 'profile:profile' username=user.username %}" class="text-sm hover:underline font-semibold text-gray-900">{{ user.full_name }}</a>
+                                                <span class="text-sm text-gray-500 line-clamp-2">{{ user.bio|truncatechars:100 }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- Follow Button -->
+                                <a href="{% url 'profile:follow' user.id %}" class="inline-block h-max bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-full">
+                                    Follow
+                                </a>
+                            </article>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+        </div>
+        
+        <!-- --- Pagination --- -->
+        <div class="w-full flex items-center justify-end">
+            {% if previous_page %}
+                <a href="?page={{ previous_page }}" class="flex items-center justify-center px-4 h-10 me-3 text-base font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 ">
+                    <svg class="w-3.5 h-3.5 me-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5H1m0 0 4 4M1 5l4-4"/>
+                    </svg>
+                    Previous
+                </a>
+            {% endif %}
+            {% if next_page %}
+                <a href="?page={{ next_page }}" class="flex items-center justify-center px-4 h-10 text-base font-medium text-gray-900 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 ">
+                    Next
+                    <svg class="w-3.5 h-3.5 ms-2 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
+                    </svg>
+                </a>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-4 sm:ml-64 pt-20 bg-gray-50 min-h-screen">
+    <div class="p-4 bg-white rounded-lg">
+        <!-- Settings Header -->
+        <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-900">{% block settings_title %}Settings{% endblock %}</h2>
+            <p class="mt-1 text-sm text-gray-600">{% block settings_description %}Manage your account settings and preferences{% endblock %}</p>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="mt-6">
+            {% block settings_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

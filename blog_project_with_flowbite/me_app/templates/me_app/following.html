@@ -1,0 +1,44 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load humanize %}
+{% block page_title %}Following{% endblock %}
+{% block page_subtitle %}People you follow{% endblock %}
+
+{% block content_classes %}grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4{% endblock %}
+
+{% block content %}
+    {% for user in following %}
+        <div class="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4 flex flex-col items-start justify-between transition-all duration-300 hover:shadow-lg">
+            <div class="w-full flex flex-row items-start justify-between">
+                <div class="w-full flex items-center">
+                    <img class="self-start w-10 h-10 object-cover object-center rounded-full mr-3" src="https://images.unsplash.com/photo-1599110364868-364162848518?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="{{ user.full_name }}">
+                    <div>
+                        <a href="{% url 'profile:profile' user.username %}" class="text-gray-800 hover:underline text-base font-semibold">{{ user.full_name }}</a>
+                        <p class="text-gray-600 text-sm truncate line-clamp-3 text-wrap max-w-72" >@{{ user.username }}</p>
+                    </div>
+                </div>
+                <a href="{% url 'profile:follow' user.pk %}" class="freeze-button inline-block h-max bg-red-600 text-white hover:bg-red-700 text-xs font-medium px-3 py-1.5 rounded-full">
+                    Unfollow
+                </a>
+            </div>
+            <div class="w-full flex start mt-6 items-center">
+                <span class="text-xs text-gray-500">Following for {{ user.since|timesince }}</span>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-span-full">
+            <div class="text-center py-12 bg-white border border-gray-200 rounded-xl shadow-sm">
+                <svg class="mx-auto w-12 h-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">Not following anyone</h3>
+                <p class="mt-1 text-sm text-gray-500">Start following other users to see their content in your feed!</p>
+                <div class="mt-6">
+                    <a href="{% url 'suggestion:writers' %}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Discover Users
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

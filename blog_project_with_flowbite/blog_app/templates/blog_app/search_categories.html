@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Categories - {{ q }}{% endblock %}
+
+{% block content %}
+<div class="mx-auto py-24">
+    <div class="w-full pb-24 mb-24 border-b border-gray-200">
+        <h1 class="max-w-screen-2xl px-4 mx-auto text-3xl font-bold">Search Results for Categories: <span class="text-blue-500">{{ q }}</span></h1>
+    </div>
+
+    <div class="max-w-screen-2xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+        {% for category in categories %}
+            <div class="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4 flex items-start justify-between transition-all duration-300 hover:shadow-lg">
+                <div class="flex items-center">
+                    <div>
+                        <h5 class="text-gray-800 text-base font-semibold">{{ category.name }}</h5>
+                        <p class="text-gray-600 text-sm truncate line-clamp-3 text-wrap max-w-72" >{{ category.description|default:category.name }}</p>
+                    </div>
+                </div>
+                <button type="button" class="bg-white self-start hover:bg-gray-200 duration-300 text-blue-500 ring-1 ring-gray-200 rounded-full p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                </button>
+            </div>
+        {% empty %}
+            <p class="text-center text-gray-600">No categories found matching your search.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
