@@ -32,12 +32,27 @@ ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
 
 # --- Security settings ---
+# --- Security settings ---
 if DEBUG:
-    CSRF_COOKIE_SECURE = not DEBUG
-    SECURE_SSL_REDIRECT = not DEBUG
-    SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
-    SECURE_HSTS_PRELOAD = not DEBUG
+    CSRF_COOKIE_SECURE = False
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+else:
+    # Production security settings
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+    # Add trusted origins for Railway
+    CSRF_TRUSTED_ORIGINS = [
+        "https://*.railway.app",
+        "https://*.up.railway.app",
+    ]
 
 
 # --- Default User models
