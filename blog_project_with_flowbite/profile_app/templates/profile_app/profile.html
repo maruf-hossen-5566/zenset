@@ -82,7 +82,7 @@
                         </div>
 
                         <!-- Bio -->
-                        <p class="text-gray-600 mb-6">{{ user.bio|default:"No bio provided" }}</p>
+                        <p class="text-gray-600 mb-6 line-clamp-4">{{ user.bio|truncatechars:300|default:"No bio provided" }}</p>
 
                         <!-- Meta Information -->
                         <div class="flex flex-wrap gap-6">
@@ -131,7 +131,12 @@
                     <article class="group relative flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                         <!-- Image with overlay -->
                         <div class="relative h-64 flex flex-col overflow-hidden">
-                            <img src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            <img
+                                {% if post.image %}
+                                    src="{{ post.image.url }}"
+                                {% else %}
+                                    src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                {% endif %}
                                 alt="{{ post.title }}" 
                                 class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
                             <!-- Category Badge -->
