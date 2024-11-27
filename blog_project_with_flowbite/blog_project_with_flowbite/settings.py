@@ -266,42 +266,42 @@ CLOUDINARY_STORAGE = {
 
 
 # --- LOGGING ---
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
-            "style": "{",
+if DEBUG:
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+            },
+            "file": {
+                "level": "DEBUG",
+                "class": "logging.FileHandler",
+                "filename": os.path.join(BASE_DIR, "logs/debug.log"),
+            },
         },
-        "simple": {
-            "format": "{levelname} {message}",
-            "style": "{",
+        "loggers": {
+            "": {
+                "handlers": ["console", "file"],
+                "level": "DEBUG",
+                "propagate": True,
+            },
         },
-    },
-    "handlers": {
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.FileHandler",
-            "filename": os.path.join(BASE_DIR, "logs/debug.log"),
-            "formatter": "verbose",
+    }
+else:
+    # Production logging - only console logging
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {
+            "console": {
+                "class": "logging.StreamHandler",
+            },
         },
-        "console": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
+        "loggers": {
+            "": {
+                "handlers": ["console"],
+                "level": "INFO",
+            },
         },
-    },
-    "loggers": {
-        "": {  # Root logger
-            "handlers": ["console", "file"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-        "zenset": {  # Application logger
-            "handlers": ["console", "file"],
-            "level": "DEBUG",
-            "propagate": True,
-        },
-    },
-}
+    }
