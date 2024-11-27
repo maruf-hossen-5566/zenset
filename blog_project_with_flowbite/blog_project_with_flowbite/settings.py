@@ -230,7 +230,7 @@ USER_AGENTS_CACHE = "default"
 SESSION_ENGINE = "user_sessions.backends.db"
 SILENCED_SYSTEM_CHECKS = ["admin.E410"]
 SESSION_CACHE_ALIAS = "default"
-if not DEBUG:
+if DEBUG:
     # -- For production
     SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 days
     SESSION_COOKIE_SECURE = True  # Only send cookie over HTTPS
