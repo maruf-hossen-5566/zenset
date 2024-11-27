@@ -25,11 +25,19 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-DEBUG = os.getenv("DEBUG")
+
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
 
-ALLOWED_HOSTS = ["*"]
+# --- Security settings ---
+if DEBUG:
+    CSRF_COOKIE_SECURE = not DEBUG
+    SECURE_SSL_REDIRECT = not DEBUG
+    SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+    SECURE_HSTS_PRELOAD = not DEBUG
 
 
 # --- Default User models
@@ -109,7 +117,7 @@ WSGI_APPLICATION = "blog_project_with_flowbite.wsgi.application"
 
 # --- DATABASE ---
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-if not DEBUG:
+if DEBUG:
     # --- SQLite ---
     DATABASES = {
         "default": {
@@ -127,7 +135,7 @@ else:
     }
 
 # --- CACHE CONFIGURATION ---
-if not DEBUG:
+if DEBUG:
     CACHES = {
         "default": {
             "BACKEND": "django.core.cache.backends.locmem.LocMemCache",

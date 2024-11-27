@@ -23,10 +23,12 @@ django-user-agents==0.4.0
 django-user-sessions==2.0.0
 Faker==30.6.0
 frozenlist==1.5.0
+gunicorn==23.0.0
 idna==3.10
 kombu==5.4.2
 maxminddb==2.6.2
 multidict==6.1.0
+packaging==24.2
 pillow==11.0.0
 prompt_toolkit==3.0.48
 propcache==0.2.0
@@ -46,4 +48,5 @@ urllib3==2.2.3
 user-agents==2.2.0
 vine==5.1.0
 wcwidth==0.2.13
+whitenoise==6.8.2
 yarl==1.17.1
