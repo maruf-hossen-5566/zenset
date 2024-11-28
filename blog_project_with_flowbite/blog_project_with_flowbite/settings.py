@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     "email_app",
     "suggestion_app",
     "cloudinary",
+    "django_extensions",
 ]
 
 
@@ -285,7 +286,10 @@ CLOUDINARY_STORAGE = {
 
 # --- LOGGING ---
 if DEBUG:
-    # Debug logging - both console and file logging
+    # Ensure logs directory exists
+    LOGS_DIR = os.path.join(BASE_DIR, "logs")
+    os.makedirs(LOGS_DIR, exist_ok=True)
+
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": False,
