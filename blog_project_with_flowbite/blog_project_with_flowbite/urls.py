@@ -14,7 +14,6 @@ urlpatterns = [
     path("like/", include("like_app.urls", namespace="like")),
     path("comment/", include("comment_app.urls", namespace="comment")),
     path("notification/", include("notification_app.urls", namespace="notify")),
-    path("test/", include("test_app.urls", namespace="test")),
     path("", include("user_sessions.urls", "user_sessions")),
     path("contact/", include("contact_app.urls", namespace="contact")),
     path("suggestion/", include("suggestion_app.urls", namespace="suggestion")),

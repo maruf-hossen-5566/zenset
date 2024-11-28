@@ -38,7 +38,10 @@ if DEBUG:
     SECURE_HSTS_SECONDS = 0
     SECURE_HSTS_INCLUDE_SUBDOMAINS = False
     SECURE_HSTS_PRELOAD = False
-    CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", "http://127.0.0.1:8000"]
+    CSRF_TRUSTED_ORIGINS = [
+        "http://localhost:8000",
+        "http://127.0.0.1:8000",
+    ]
 else:
     # Production security settings
     CSRF_COOKIE_SECURE = True
@@ -82,7 +85,6 @@ INSTALLED_APPS = [
     "comment_app",
     "notification_app",
     "debug_toolbar",
-    "test_app",
     "contact_app",
     "email_app",
     "suggestion_app",
@@ -95,7 +97,7 @@ MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     # "django.contrib.sessions.middleware.SessionMiddleware",
-    "user_sessions.middleware.SessionMiddleware",  # Add this line
+    "user_sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -207,7 +209,6 @@ LANGUAGE_CODE = "en-us"
 
 
 # --- LOGIN CONF ---
-# LOGIN_REDIRECT_URL = 'blog:index'
 LOGIN_REDIRECT_URL = "blog:index"
 LOGIN_URL = "auth:login"
 LOGOUT_REDIRECT_URL = "blog:index"
@@ -218,6 +219,35 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+
+# --- MEDIA CONFIGURATION ---
+if DEBUG:
+    # SetUp media root and url
+    MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+    MEDIA_URL = "/media/"
+else:
+    # --- CLOUDINARY CONFIGURATION ---
+    CLOUDINARY_STORAGE = {
+        "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
+        "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
+        "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+        "SECURE": True,
+        "STATIC_TRANSFORMATIONS": {
+            "image": {
+                "quality": "auto",
+                "fetch_format": "auto",
+                "dpr": "auto",
+            },
+            "profile_pictures": {
+                "quality": "auto:good",
+                "fetch_format": "auto",
+                "dpr": "auto",
+                "responsive": True,
+                "width": "auto",
+                "crop": "fill",
+            },
+        },
+    }
 
 
 # Add internal IPs
@@ -254,30 +284,6 @@ if DEBUG:
 
 USE_TZ = True
 TIME_ZONE = "Asia/Dhaka"  # Your local timezone
-
-
-# --- CLOUDINARY CONFIGURATION ---
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
-    "SECURE": True,
-    "STATIC_TRANSFORMATIONS": {
-        "image": {
-            "quality": "auto",
-            "fetch_format": "auto",
-            "dpr": "auto",
-        },
-        "profile_pictures": {
-            "quality": "auto:good",
-            "fetch_format": "auto",
-            "dpr": "auto",
-            "responsive": True,
-            "width": "auto",
-            "crop": "fill",
-        },
-    },
-}
 
 
 # --- LOGGING ---

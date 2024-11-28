@@ -45,15 +45,15 @@ def clear_notifications_cache(sender, instance, created=False, **kwargs):
                     f"Cleaned up {deleted_count} old notifications for user {user.id}"
                 )
 
-        if not settings.DEBUG:
+        if settings.DEBUG:
+            cache.clear()
+            logger.info("Cleared notifications cache.")
+        else:
             cache_key = f"notification:user_{instance.user.id}:*"
             deleted = cache.delete_pattern(cache_key)
             logger.info(
                 f"Cleared notification cache for user {instance.user.id}. Deleted keys: {deleted}"
             )
-        else:
-            cache.clear()
-            logger.info("Cleared notifications cache.")
     except Exception as e:
         logger.error(f"Error in notification signal: {e}")
 
@@ -66,7 +66,10 @@ def notify_user_about_new_like(sender, instance, created=False, **kwargs):
     """
 
     try:
-        if not settings.DEBUG:
+        if settings.DEBUG:
+            cache.clear()
+            logger.info("Cleared notifications cache.")
+        else:
             obj_args = {
                 "from_user": instance.user,
                 "user": instance.blog.author,
@@ -84,9 +87,6 @@ def notify_user_about_new_like(sender, instance, created=False, **kwargs):
                     obj = Notification.objects.filter(**obj_args).first()
                     if obj:
                         obj.delete()
-        else:
-            cache.clear()
-            logger.info("Cleared notifications cache.")
 
     except Exception as e:
         logger.error(f"Error in notification signal: {e}")

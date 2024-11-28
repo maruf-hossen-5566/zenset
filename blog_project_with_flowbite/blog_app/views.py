@@ -294,94 +294,114 @@ def post_detail(request, username, slug):
     cache_key = f"blog:post_detail:user_{request.user.id if request.user.is_authenticated else 'anon'}:author_{username}:slug_{slug}"
     context = cache.get(cache_key)
 
-    # if not context:
-    try:
-        post = (
-            Blog.objects.select_related("author")
-            .prefetch_related(
-                # Prefetching comments and there replies
-                Prefetch(
-                    "comments",
-                    Comment.objects.select_related("user")
-                    .prefetch_related(
-                        Prefetch(
-                            "replies",
-                            Reply.objects.select_related(
-                                "user", "parent_reply", "parent_reply__user"
-                            ).order_by("created_at"),
+    if not context:
+        try:
+            post = (
+                Blog.objects.select_related("author")
+                .prefetch_related(
+                    # Prefetching comments and there replies
+                    Prefetch(
+                        "comments",
+                        Comment.objects.select_related("user")
+                        .prefetch_related(
+                            Prefetch(
+                                "replies",
+                                Reply.objects.select_related(
+                                    "user", "parent_reply", "parent_reply__user"
+                                ).order_by("created_at"),
+                            )
                         )
+                        .annotate(eng=Count("replies"))
+                        .order_by("-eng", "-created_at"),
+                        "post_comments",
+                    ),
+                    # Prefetching Likes
+                    Prefetch(
+                        "likes",
+                        (
+                            Like.objects.filter(user=request.user)
+                            if request.user.is_authenticated
+                            else Like.objects.none()
+                        ),
+                        "liked",
+                    ),
+                    # Prefetching bookmarks
+                    Prefetch(
+                        "bookmarks",
+                        (
+                            Bookmark.objects.filter(user=request.user)
+                            if request.user.is_authenticated
+                            else Bookmark.objects.none()
+                        ),
+                        "bookmarked",
+                    ),
+                    # Prefetching tags
+                    Prefetch("tags", Tag.objects.all(), "post_tags"),
+                )
+                .get(author__username=username, slug=slug)
+            )
+
+            following = (
+                post.author.followers.filter(follower=request.user).exists()
+                if request.user.is_authenticated and not request.user is post.author
+                else False
+            )
+
+            related_posts = (
+                Blog.objects.select_related("author")
+                .filter(
+                    Q(is_published=True) & Q(tags__in=post.tags.all())
+                    | Q(author=post.author)
+                )
+                .exclude(id=post.id)
+                .distinct()
+                .only(
+                    "id",
+                    "title",
+                    "slug",
+                    "author__username",
+                    "author__full_name",
+                    "created_at",
+                    "image",
+                )[:6]
+            )
+
+            # If we need more posts to reach 6
+            if related_posts.count() < 6:
+                additional_posts = (
+                    Blog.objects.filter(is_published=True)
+                    .exclude(
+                        Q(id=post.id)
+                        | Q(id__in=related_posts.values_list("id", flat=True))
                     )
-                    .annotate(eng=Count("replies"))
-                    .order_by("-eng", "-created_at"),
-                    "post_comments",
-                ),
-                # Prefetching Likes
-                Prefetch(
-                    "likes",
-                    (
-                        Like.objects.filter(user=request.user)
-                        if request.user.is_authenticated
-                        else Like.objects.none()
-                    ),
-                    "liked",
-                ),
-                # Prefetching bookmarks
-                Prefetch(
-                    "bookmarks",
-                    (
-                        Bookmark.objects.filter(user=request.user)
-                        if request.user.is_authenticated
-                        else Bookmark.objects.none()
-                    ),
-                    "bookmarked",
-                ),
-                # Prefetching tags
-                Prefetch("tags", Tag.objects.all(), "post_tags"),
-            )
-            .get(author__username=username, slug=slug)
-        )
+                    .only(
+                        "id",
+                        "title",
+                        "slug",
+                        "author__username",
+                        "author__full_name",
+                        "created_at",
+                        "image",
+                    )
+                    .order_by("?")[: 6 - related_posts.count()]
+                )
+                related_posts = list(related_posts) + list(additional_posts)
+        except Blog.DoesNotExist:
+            messages.error(request, f"Post you are looking for does not exist!")
+            return redirect(reverse("blog:index"))
+        except Exception as error:
+            messages.error(request, f"An error occurred: {error}")
+            return redirect(reverse("blog:index"))
 
-        following = (
-            post.author.followers.filter(follower=request.user).exists()
-            if request.user.is_authenticated and not request.user is post.author
-            else False
-        )
-
-        related_posts = (
-            Blog.objects.select_related("author")
-            .filter(
-                Q(is_published=True) & Q(tags__in=post.tags.all())
-                | Q(author=post.author)
-            )
-            .exclude(id=post.id)
-            .distinct()
-            .only("title", "slug", "author", "created_at", "image")[:6]
-        )
-        if related_posts.count() < 6:
-            related_posts = related_posts.union(
-                Blog.objects.filter(
-                    is_published=True,
-                    id__in=related_posts.values_list("id", flat=True),
-                ).only("title", "slug", "author", "created_at", "image")[
-                    : 6 - related_posts.count()
-                ]
-            )
-    except Blog.DoesNotExist:
-        messages.error(request, f"Post you are looking for does not exist!")
-        return redirect(reverse("blog:index"))
-    except Exception as error:
-        messages.error(request, f"An error occurred: {error}")
-        return redirect(reverse("blog:index"))
-
-    context = {
-        "post": post,
-        "related_posts": related_posts,
-        "liked": bool(post.liked),
-        "bookmarked": bool(post.bookmarked),
-        "following": bool(following),
-        "comments": post.post_comments,
-    }
-    # cache.set(cache_key, context, 15 * 60)
+        context = {
+            "post": post,
+            "related_posts": related_posts,
+            "liked": bool(post.liked),
+            "bookmarked": bool(post.bookmarked),
+            "following": bool(following),
+            "comments": post.post_comments,
+        }
+        cache.set(cache_key, context, 15 * 60)
 
     return render(request, "blog_app/post_detail.html", context)
 

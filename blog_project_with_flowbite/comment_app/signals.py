@@ -62,14 +62,14 @@ def clear_post_detail_cache(sender, instance, created=None, **kwargs):
 @receiver([post_save, post_delete], sender=Reply)
 def clear_post_detail_cache(sender, instance, created=None, **kwargs):
     try:
-        if not settings.DEBUG:
+        if settings.DEBUG:
+            cache.clear()
+            logger.info(f"Cleared blog detail cache for {instance.comment.blog.slug}.")
+        else:
             cache_key = f"blog:post_detail:*:author_{instance.comment.blog.author.username}:slug_{instance.comment.blog.slug}"
             deleted = cache.delete_pattern(cache_key)
             logger.info(
                 f"Cleared blog detail cache for {instance.comment.blog.slug}. Deleted keys: {deleted}"
             )
-        else:
-            cache.clear()
-            logger.info(f"Cleared blog detail cache for {instance.comment.blog.slug}.")
     except Exception as e:
         logger.error(f"Error clearing blog detail cache: {e}")

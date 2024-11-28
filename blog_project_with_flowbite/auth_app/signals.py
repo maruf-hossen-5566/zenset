@@ -16,7 +16,13 @@ def invalidate_user_related_cache(sender, instance, *args, **kwargs):
     Invalidates cache for user's pages, homepage, following, trending and latest pages.
     """
     try:
-        if not settings.DEBUG:
+        if settings.DEBUG:
+            # Clear cache
+            cache.clear()
+            logger.info(
+                f"User {instance.username} data changed. Clearing user related cache."
+            )
+        else:
             patterns = [
                 f"blog:*:user_{instance.id}:*",  # All user's cached pages
                 "blog:index:*",  # Homepage caches
@@ -30,11 +36,6 @@ def invalidate_user_related_cache(sender, instance, *args, **kwargs):
                 logger.info(
                     f"Cleared user cache pattern {pattern}. Deleted keys: {deleted}"
                 )
-        else:
-            # Clear cache
-            cache.clear()
-            logger.info(
-                f"User {instance.username} data changed. Clearing user related cache."
-            )
+
     except Exception as e:
         logger.error(f"Error clearing user related cache: {e}")

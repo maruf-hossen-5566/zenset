@@ -54,6 +54,7 @@ def search(request):
         User.objects.filter(
             Q(username__icontains=q) | Q(full_name__icontains=q) | Q(email__icontains=q)
         )
+        .distinct()
         .annotate(
             is_following=Case(
                 When(
@@ -73,8 +74,7 @@ def search(request):
             "bio",
             "tagline",
         )
-        .order_by("full_name")
-        .distinct()[:10]
+        .order_by("full_name")[:10]
     )
     for_tags = (
         Tag.objects.filter(name__icontains=q)

@@ -22,7 +22,10 @@ def notify_user_about_new_follower(sender, instance, created=False, **kwargs):
     """
 
     try:
-        if not settings.DEBUG:
+        if settings.DEBUG:
+            cache.clear()
+            logger.info("Cleared notifications cache.")
+        else:
             obj_args = {
                 "user": instance.user,
                 "from_user": instance.follower,
@@ -39,9 +42,7 @@ def notify_user_about_new_follower(sender, instance, created=False, **kwargs):
                     obj = Notification.objects.filter(**obj_args).first()
                     if obj:
                         obj.delete()
-        else:
-            cache.clear()
-            logger.info("Cleared notifications cache.")
+
     except Exception as e:
         logger.error(f"Error in notification signal: {e}")
 
@@ -53,15 +54,15 @@ def clear_cache_on_follow(sender, instance, created=False, *args, **kwargs):
     Clears cache for both follower and followed user.
     """
     try:
-        if not settings.DEBUG:
+        if settings.DEBUG:
+            cache.clear()
+            logger.info("Cleared following cache.")
+        else:
             cache_keys = [
                 f"blog:following:user_{instance.follower.id}:*",
                 f"blog:following:user_{instance.user.id}:*",
             ]
             for cache_key in cache_keys:
                 cache.delete_pattern(cache_key, itersize=100_000)
-        else:
-            cache.clear()
-            logger.info("Cleared following cache.")
     except Exception as e:
         logger.error(f"Error clearing following cache: {e}")
