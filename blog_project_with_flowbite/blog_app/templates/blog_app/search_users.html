@@ -25,13 +25,19 @@
                         <p class="text-gray-600 text-sm truncate line-clamp-3 text-wrap max-w-72" >{{ user.bio|truncatechars:100|default:user.username }}</p>
                     </div>
                 </div>
-                <a href="{% url 'profile:follow' user.id %}" class="inline-block h-max bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-full {% if user.is_following %}bg-red-600 text-gray-600 hover:bg-red-700 hover:text-white{% endif %}">
-                    {% if user.is_following %}
-                        Unfollow
-                    {% else %}
-                        Follow
-                    {% endif %}
-                </a>
+                {% if user.id != request.user.id %}
+                    <a href="{% url 'profile:follow' user.id %}" class="inline-block h-max bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-full {% if user.is_following %}bg-red-600 text-gray-600 hover:bg-red-700 hover:text-white{% endif %}">
+                        {% if user.is_following %}
+                            Unfollow
+                        {% else %}
+                            Follow
+                        {% endif %}
+                    </a>
+                {% else %}
+                    <a href="{% url 'dashboard:profile_settings' %}" class="inline-block h-max bg-gray-100 text-gray-600 hover:bg-gray-200 text-xs font-medium px-3 py-1.5 rounded-full">
+                        Edit
+                    </a>
+                {% endif %}
             </div>
         {% empty %}
             <div class="col-span-full flex flex-col items-center justify-center py-24 border border-gray-200 rounded-lg">

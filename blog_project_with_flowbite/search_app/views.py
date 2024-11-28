@@ -1,4 +1,5 @@
 from django.shortcuts import redirect, render, get_object_or_404
+import logging
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q, Case, When, Exists, OuterRef, BooleanField, Value
@@ -11,6 +12,7 @@ from profile_app.models import Follow
 from utils.herlpers import pro_print
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 def search(request):
@@ -24,74 +26,90 @@ def search(request):
         messages.error(request, "Search term is required!")
         return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
 
-    base_query = (
-        Blog.objects.select_related("author")
-        .prefetch_related("tags")
-        .only(
-            "id",
-            "title",
-            "slug",
-            "image",
-            "content_preview",
-            "created_at",
-            "author__username",
-            "author__full_name",
-            "tags__name",
-            "tags__slug",
-            "tags__description",
+    try:
+        base_query = (
+            Blog.objects.select_related("author")
+            .prefetch_related("tags")
+            .only(
+                "id",
+                "title",
+                "slug",
+                "image",
+                "content_preview",
+                "created_at",
+                "author__username",
+                "author__full_name",
+                "tags__name",
+                "tags__slug",
+                "tags__description",
+            )
+            .filter(
+                Q(title__icontains=q)
+                | Q(content__icontains=q)
+                | Q(tags__name__icontains=q)
+                | Q(author__username__icontains=q)
+                | Q(author__full_name__icontains=q)
+                | Q(author__email__icontains=q)
+            )
+            .distinct()
+            .order_by("-created_at")
         )
-        .filter(
-            Q(title__icontains=q)
-            | Q(content__icontains=q)
-            | Q(tags__name__icontains=q)
-            | Q(author__username__icontains=q)
-            | Q(author__full_name__icontains=q)
-            | Q(author__email__icontains=q)
-        )
-        .distinct()
-    )
-    for_users = (
-        User.objects.filter(
+        for_users = User.objects.filter(
             Q(username__icontains=q) | Q(full_name__icontains=q) | Q(email__icontains=q)
-        )
-        .distinct()
-        .annotate(
-            is_following=Case(
-                When(
-                    followers__follower=request.user,
-                    then=Value(True),
-                ),
-                default=Value(False),
-                output_field=BooleanField(),
+        ).distinct()
+        for_tags = Tag.objects.filter(name__icontains=q)
+
+        # If user is authenticated, add is_following field to for_users and for_tags
+        if request.user.is_authenticated:
+            for_users = (
+                for_users.annotate(
+                    is_following=Exists(
+                        Follow.objects.filter(
+                            follower=request.user, user=OuterRef("id")
+                        )
+                    )
+                )
+                .values(
+                    "id",
+                    "username",
+                    "image",
+                    "full_name",
+                    "is_following",
+                    "bio",
+                    "tagline",
+                )
+                .distinct()
+                .order_by("full_name")[:10]
             )
-        )
-        .values(
-            "id",
-            "username",
-            "image",
-            "full_name",
-            "is_following",
-            "bio",
-            "tagline",
-        )
-        .order_by("full_name")[:10]
-    )
-    for_tags = (
-        Tag.objects.filter(name__icontains=q)
-        .annotate(
-            is_following=Case(
-                When(
-                    tag_follows__user=request.user,
-                    then=Value(True),
-                ),
-                default=Value(False),
-                output_field=BooleanField(),
+            for_tags = (
+                for_tags.annotate(
+                    is_following=Case(
+                        When(tag_follows__user=request.user, then=Value(True)),
+                        default=Value(False),
+                        output_field=BooleanField(),
+                    )
+                )
+                .annotate(
+                    is_following=Case(
+                        When(
+                            tag_follows__user=request.user,
+                            then=Value(True),
+                        ),
+                        default=Value(False),
+                        output_field=BooleanField(),
+                    )
+                )
+                .distinct()
+                .values(
+                    "id", "name", "slug", "description", "is_following", "description"
+                )
+                .order_by("name")[:10]
             )
-        )
-        .values("id", "name", "slug", "description", "is_following", "description")
-        .order_by("name")
-        .distinct()[:10]
-    )
+
+    except Exception as e:
+        logger.error(f"Error searching: {e}")
+        messages.error(request, f"{e}")
+        return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
 
     # Pagination
     paginator = Paginator(base_query, 24)
@@ -117,32 +135,41 @@ def search_posts(request):
     Uses query param 'q' for search term.
     """
     q = request.GET.get("q", "")
-
     if not q.strip():
         messages.error(request, "Search term is required!")
         return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
 
-    posts = (
-        Blog.objects.select_related("author")
-        .filter(
-            Q(title__icontains=q)
-            | Q(content__icontains=q)
-            | Q(tags__name__icontains=q)
-            | Q(author__username__icontains=q)
-            | Q(author__full_name__icontains=q)
-            | Q(author__email__icontains=q)
+    try:
+        posts = (
+            Blog.objects.select_related("author")
+            .filter(
+                Q(title__icontains=q)
+                | Q(content__icontains=q)
+                | Q(tags__name__icontains=q)
+                | Q(author__username__icontains=q)
+                | Q(author__full_name__icontains=q)
+                | Q(author__email__icontains=q)
+            )
+            .distinct()
+            .only(
+                "id",
+                "title",
+                "slug",
+                "image",
+                "content_preview",
+                "created_at",
+                "author__username",
+                "author__full_name",
+            )
         )
-        .only(
-            "id",
-            "title",
-            "slug",
-            "image",
-            "content_preview",
-            "created_at",
-            "author__username",
-            "author__full_name",
-        )[:50]
-    )
+
+        posts = posts.order_by("-created_at")
+
+    except Exception as e:
+        logger.error(f"Error searching posts: {e}")
+        messages.error(request, f"{e}")
+        return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
+
     # Pagination
     paginator = Paginator(posts, 24)
     page_number = request.GET.get("page", 1)
@@ -170,18 +197,49 @@ def search_users(request):
         messages.error(request, "Search term is required!")
         return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
 
-    users = (
-        User.objects.filter(
+    try:
+        base_query = User.objects.filter(
             Q(username__icontains=q) | Q(full_name__icontains=q) | Q(email__icontains=q)
-        )
-        .annotate(
-            is_following=Case(
-                When(followers__follower=request.user, then=Value(True)),
-                output_field=BooleanField(),
+        ).distinct()
+
+        if request.user.is_authenticated:
+            users = base_query.annotate(
+                is_following=Exists(
+                    Follow.objects.filter(
+                        follower=request.user,
+                        user=OuterRef("pk"),
+                    )
+                )
             )
-        )
-        .order_by("full_name")
-    )
+
+            users = users.values(
+                "id",
+                "image",
+                "username",
+                "full_name",
+                "bio",
+                "tagline",
+                "is_following",
+            ).order_by("full_name")
+        else:
+            users = (
+                base_query.annotate(
+                    is_following=Value(False, output_field=BooleanField()),
+                )
+                .values(
+                    "id",
+                    "username",
+                    "image",
+                    "full_name",
+                    "is_following",
+                )
+                .order_by("full_name")
+            )
+
+    except Exception as e:
+        logger.error(f"Error searching users: {e}")
+        messages.error(request, f"{e}")
+        return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
 
     # Pagination
     paginator = Paginator(users, 24)
@@ -189,7 +247,7 @@ def search_users(request):
     page_obj = paginator.get_page(page_number)
 
     context = {
-        "users": page_obj,
+        "users": list(page_obj),
         "q": q,
         "previous_page": (
             page_obj.previous_page_number() if page_obj.has_previous() else None
@@ -218,7 +276,9 @@ def search_tags(request):
             .order_by("name")
         )
     except Exception as e:
-        tags = []
+        logger.error(f"Error searching tags: {e}")
+        messages.error(request, f"{e}")
+        return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
 
     # Pagination
     paginator = Paginator(tags, 24)
