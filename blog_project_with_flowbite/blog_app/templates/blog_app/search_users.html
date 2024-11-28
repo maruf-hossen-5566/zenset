@@ -13,7 +13,13 @@
         {% for user in users %}
             <div class="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4 flex items-start justify-between transition-all duration-300 hover:shadow-lg">
                 <div class="flex items-center">
-                    <img class="self-start w-10 h-10 rounded-full mr-3" src="https://images.pexels.com/photos/14785828/pexels-photo-14785828.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="{{ user.full_name }}">
+                    <img class="self-start w-10 h-10 rounded-full mr-3"
+                        {% if user.image %}
+                            src="{{ user.image.url }}"
+                        {% else %}
+                            src="https://images.pexels.com/photos/14785828/pexels-photo-14785828.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+                        {% endif %}
+                        alt="{{ user.full_name }}">
                     <div>
                         <a href="{% url 'profile:profile' user.username %}" class="text-gray-800 hover:underline text-base font-semibold">{{ user.full_name }}</a>
                         <p class="text-gray-600 text-sm truncate line-clamp-3 text-wrap max-w-72" >{{ user.bio|truncatechars:100|default:user.username }}</p>

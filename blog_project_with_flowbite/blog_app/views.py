@@ -347,10 +347,23 @@ def post_detail(request, username, slug):
 
         related_posts = (
             Blog.objects.select_related("author")
-            .filter(Q(is_published=True) & Q(tags__in=post.tags.all()))
+            .filter(
+                Q(is_published=True) & Q(tags__in=post.tags.all())
+                | Q(author=post.author)
+            )
             .exclude(id=post.id)
+            .distinct()
             .only("title", "slug", "author", "created_at", "image")[:6]
         )
+        if related_posts.count() < 6:
+            related_posts = related_posts.union(
+                Blog.objects.filter(
+                    is_published=True,
+                    id__in=related_posts.values_list("id", flat=True),
+                ).only("title", "slug", "author", "created_at", "image")[
+                    : 6 - related_posts.count()
+                ]
+            )
     except Blog.DoesNotExist:
         messages.error(request, f"Post you are looking for does not exist!")
         return redirect(reverse("blog:index"))
