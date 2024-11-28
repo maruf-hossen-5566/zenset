@@ -71,7 +71,6 @@ def search(request):
         .order_by("full_name")
         .distinct()[:100]
     )
-    pro_print(for_users, "FOR USERS")
     for_tags = Tag.objects.filter(name__icontains=q).distinct()[:10]
 
     # Pagination
