@@ -14,19 +14,15 @@
             <div class="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4 flex items-start justify-between transition-all duration-300 hover:shadow-lg">
                 <div class="flex items-center">
                     <div>
-                        <h5 class="text-gray-800 text-base font-semibold">{{ tag.name }}</h5>
+                        <a href="{% url 'blog:tag_detail' slug=tag.slug %}" class="text-gray-800 text-base font-semibold">{{ tag.name }}</a>
                         <p class="text-gray-600 text-sm truncate line-clamp-3 text-wrap max-w-72" >{{ tag.description|default:tag.name }}</p>
                     </div>
                 </div>
-                <a href="{% url 'blog:follow_tag' tag.id %}" class="bg-white self-start hover:bg-gray-200 duration-300 text-blue-500 ring-1 ring-gray-200 rounded-full p-1 {% if tag.is_following %} text-red-500 {% endif %}">
-                    {% if not tag.is_following %}
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                        </svg>
+                <a href="{% url 'blog:follow_tag' id=tag.id %}" class="inline-block h-max bg-blue-600 text-white hover:bg-blue-700 text-xs font-medium px-3 py-1.5 rounded-full {% if tag.is_following %}bg-red-600 text-gray-600 hover:bg-red-700 hover:text-white{% endif %}">
+                    {% if tag.is_following %}
+                        Unfollow
                     {% else %}
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6"></path>
-                        </svg>
+                        Follow
                     {% endif %}
                 </a>
             </div>

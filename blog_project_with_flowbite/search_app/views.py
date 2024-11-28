@@ -69,9 +69,24 @@ def search(request):
             "tagline",
         )
         .order_by("full_name")
-        .distinct()[:100]
+        .distinct()[:10]
     )
-    for_tags = Tag.objects.filter(name__icontains=q).distinct()[:10]
+    for_tags = (
+        Tag.objects.filter(name__icontains=q)
+        .annotate(
+            is_following=Case(
+                When(
+                    tag_follows__user=request.user,
+                    then=Value(True),
+                ),
+                default=Value(False),
+                output_field=BooleanField(),
+            )
+        )
+        .values("id", "name", "slug", "description", "is_following", "description")
+        .order_by("name")
+        .distinct()[:10]
+    )
 
     # Pagination
     paginator = Paginator(base_query, 24)
@@ -134,14 +149,18 @@ def search_users(request):
     Uses query param 'q' for search term.
     """
     q = request.GET.get("q", "")
-    users = User.objects.filter(
-        Q(username__icontains=q) | Q(full_name__icontains=q) | Q(email__icontains=q)
-    ).annotate(
-        is_following=Case(
-            When(followers__follower=request.user, then=Value(True)),
-            output_field=BooleanField(),
+    users = (
+        User.objects.filter(
+            Q(username__icontains=q) | Q(full_name__icontains=q) | Q(email__icontains=q)
         )
-    ).order_by("full_name")
+        .annotate(
+            is_following=Case(
+                When(followers__follower=request.user, then=Value(True)),
+                output_field=BooleanField(),
+            )
+        )
+        .order_by("full_name")
+    )
 
     # Pagination
     paginator = Paginator(users, 24)
@@ -166,12 +185,15 @@ def search_tags(request):
     """
     q = request.GET.get("q", "")
     followed_tags = request.user.get_followed_tags().values_list("id", flat=True)
-    pro_print(followed_tags, "F TAGS")
-    tags = Tag.objects.filter(name__icontains=q).annotate(
-        is_following=Case(
-            When(id__in=followed_tags, then=Value(True)),
-            output_field=BooleanField(),
+    tags = (
+        Tag.objects.filter(name__icontains=q)
+        .annotate(
+            is_following=Case(
+                When(id__in=followed_tags, then=Value(True)),
+                output_field=BooleanField(),
+            )
         )
+        .order_by("name")
     )
 
     # Pagination

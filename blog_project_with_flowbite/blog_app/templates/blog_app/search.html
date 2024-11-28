@@ -167,11 +167,17 @@
                                         <p class="text-gray-600 text-sm truncate line-clamp-2 text-wrap max-w-72" >{{ tag.description|default:tag.name }}</p>
                                     </div>
                                 </div>
-                                <button type="button" class="bg-white hover:bg-gray-200 duration-300 text-blue-500 ring-1 ring-gray-200 rounded-full p-1">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                    </svg>
-                                </button>
+                                <a href="{% url 'blog:follow_tag' id=tag.id %}" class="bg-white hover:bg-gray-200 duration-300 text-blue-500 ring-1 ring-gray-200 rounded-full p-1">
+                                    {% if tag.is_following %}
+                                        <svg class="w-5 h-5 text-red-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"/>
+                                        </svg>
+                                    {% else %}
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                                        </svg>
+                                    {% endif %}
+                                </a>
                             </div>
                         {% empty %}
                             <p class="border border-gray-200 flex items-center justify-center min-h-44 rounded-xl w-full text-center text-gray-600">No data found.</p>
