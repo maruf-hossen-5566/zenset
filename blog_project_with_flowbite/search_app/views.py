@@ -141,7 +141,8 @@ def search_users(request):
             When(followers__follower=request.user, then=Value(True)),
             output_field=BooleanField(),
         )
-    )
+    ).order_by("full_name")
+
     # Pagination
     paginator = Paginator(users, 24)
     page_number = request.GET.get("page", 1)
