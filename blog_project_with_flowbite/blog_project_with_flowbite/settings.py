@@ -285,6 +285,7 @@ CLOUDINARY_STORAGE = {
 
 # --- LOGGING ---
 if DEBUG:
+    # Debug logging - both console and file logging
     LOGGING = {
         "version": 1,
         "disable_existing_loggers": False,
