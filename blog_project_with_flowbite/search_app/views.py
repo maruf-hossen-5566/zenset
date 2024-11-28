@@ -1,8 +1,9 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from django.db.models import Q, Case, When, Exists, OuterRef, BooleanField, Value
 from django.contrib import messages
+from django.urls import reverse
 from blog_app.models import Blog, Tag
 from django.contrib.auth import get_user_model
 
@@ -18,6 +19,10 @@ def search(request):
     Uses query param 'q' for search term.
     """
     q = request.GET.get("q", "")
+
+    if not q.strip():
+        messages.error(request, "Search term is required!")
+        return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
 
     base_query = (
         Blog.objects.select_related("author")
@@ -113,8 +118,20 @@ def search_posts(request):
     """
     q = request.GET.get("q", "")
 
+    if not q.strip():
+        messages.error(request, "Search term is required!")
+        return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
+
     posts = (
         Blog.objects.select_related("author")
+        .filter(
+            Q(title__icontains=q)
+            | Q(content__icontains=q)
+            | Q(tags__name__icontains=q)
+            | Q(author__username__icontains=q)
+            | Q(author__full_name__icontains=q)
+            | Q(author__email__icontains=q)
+        )
         .only(
             "id",
             "title",
@@ -124,8 +141,7 @@ def search_posts(request):
             "created_at",
             "author__username",
             "author__full_name",
-        )
-        .filter(title__icontains=q)[:50]
+        )[:50]
     )
     # Pagination
     paginator = Paginator(posts, 24)
@@ -149,6 +165,11 @@ def search_users(request):
     Uses query param 'q' for search term.
     """
     q = request.GET.get("q", "")
+
+    if not q.strip():
+        messages.error(request, "Search term is required!")
+        return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
+
     users = (
         User.objects.filter(
             Q(username__icontains=q) | Q(full_name__icontains=q) | Q(email__icontains=q)
@@ -183,18 +204,21 @@ def search_tags(request):
     Search tags by name.
     Uses query param 'q' for search term.
     """
-    q = request.GET.get("q", "")
-    followed_tags = request.user.get_followed_tags().values_list("id", flat=True)
-    tags = (
-        Tag.objects.filter(name__icontains=q)
-        .annotate(
-            is_following=Case(
-                When(id__in=followed_tags, then=Value(True)),
-                output_field=BooleanField(),
+    try:
+        q = request.GET.get("q", "")
+        followed_tags = request.user.get_followed_tags().values_list("id", flat=True)
+        tags = (
+            Tag.objects.filter(name__icontains=q)
+            .annotate(
+                is_following=Case(
+                    When(id__in=followed_tags, then=Value(True)),
+                    output_field=BooleanField(),
+                )
             )
+            .order_by("name")
         )
-        .order_by("name")
-    )
+    except Exception as e:
+        tags = []
 
     # Pagination
     paginator = Paginator(tags, 24)

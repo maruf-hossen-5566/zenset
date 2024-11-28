@@ -14,7 +14,7 @@
             <div class="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden p-4 flex items-start justify-between transition-all duration-300 hover:shadow-lg">
                 <div class="flex items-center">
                     <div>
-                        <a href="{% url 'blog:tag_detail' slug=tag.slug %}" class="text-gray-800 text-base font-semibold">{{ tag.name }}</a>
+                        <a href="{% url 'blog:tag_detail' slug=tag.slug %}" class="text-gray-800 text-base font-semibold hover:underline">{{ tag.name }}</a>
                         <p class="text-gray-600 text-sm truncate line-clamp-3 text-wrap max-w-72" >{{ tag.description|default:tag.name }}</p>
                     </div>
                 </div>

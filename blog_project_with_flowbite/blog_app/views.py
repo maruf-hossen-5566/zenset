@@ -676,25 +676,32 @@ def tag_detail(request, slug):
     if not context:
         try:
             tag = get_object_or_404(Tag, slug=slug)
-            posts = (
-                Blog.objects.filter(tags=tag, is_published=True)
-                .select_related("author")
-                .only(
-                    "id",
-                    "title",
-                    "slug",
-                    "content_preview",
-                    "created_at",
-                    "image",
-                    "author__id",
-                    "author__username",
-                    "author__image",
-                    "author__full_name",
+            if tag:
+                posts = (
+                    Blog.objects.filter(tags=tag, is_published=True)
+                    .select_related("author")
+                    .only(
+                        "id",
+                        "title",
+                        "slug",
+                        "content_preview",
+                        "created_at",
+                        "image",
+                        "author__id",
+                        "author__username",
+                        "author__image",
+                        "author__full_name",
+                    )
                 )
-            )
-            posts = posts.order_by("-created_at")
+                posts = posts.order_by("-created_at")
+            else:
+                posts = []
+        except Http404:
+            messages.error(request, f"Tag not found!")
+            return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
         except Exception as error:
             messages.error(request, f"{error}")
+            return redirect(request.META.get("HTTP_REFERER", reverse("blog:index")))
 
         paginator = Paginator(posts, 24)
         page_obj = paginator.get_page(page_number)
