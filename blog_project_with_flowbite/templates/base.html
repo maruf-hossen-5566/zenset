@@ -21,7 +21,7 @@
         }
     </style>
 </head>
-<body class="bg-white font-[Inter] ">
+<body class="bg-white font-[Inter] min-h-[calc(100vh-4.375rem)]">
     {% if request.user.is_authenticated %}
         {% include 'components/auth_nav.html' %}
     {% else %}

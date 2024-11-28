@@ -46,9 +46,6 @@ def index(request):
     cache_key = f"blog:index:user_{user_id}:page_{page_number}"
     context = cache.get(cache_key)
 
-    if request.user.is_authenticated:
-        followed_tags = request.user.get_followed_tags().values_list("id", flat=True)
-
     if not context:
         posts = Blog.objects.select_related("author").only(
             "id",
@@ -68,8 +65,14 @@ def index(request):
             regular_posts = posts.exclude(
                 Q(author=request.user) | Q(is_published=False) | Q(is_featured=True)
             )
+            # Get followed tags
+            followed_tags = request.user.get_followed_tags().values_list(
+                "id", flat=True
+            )
             if followed_tags:
-                regular_posts = regular_posts.filter(tags__id__in=followed_tags)
+                # Filter posts by followed tags
+                followed_tags_posts = posts.filter(tags__id__in=followed_tags)
+                regular_posts = regular_posts.union(followed_tags_posts)
         else:
             regular_posts = posts.filter(is_published=True, is_featured=False)
 
@@ -84,7 +87,6 @@ def index(request):
 
         # Do pagination
         paginator = Paginator(regular_posts, 24)
-        # paginator = Paginator(regular_posts, 5000)
         page_obj = paginator.get_page(page_number)
 
         # Create the context
@@ -155,7 +157,7 @@ def following(request):
         else:
             posts = posts.filter(is_published=True)
 
-        posts.order_by("-created_at")
+        posts = posts.order_by("-created_at")
 
         paginator = Paginator(posts, 24)
         page_obj = paginator.get_page(page_number)
