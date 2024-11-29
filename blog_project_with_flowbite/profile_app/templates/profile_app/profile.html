@@ -139,12 +139,6 @@
                                 {% endif %}
                                 alt="{{ post.title }}" 
                                 class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
-                            <!-- Category Badge -->
-                            {% if post.category %}
-                                <a href="{% url 'blog:category' slug=post.category.slug %}" class="absolute top-4 left-4 bg-gray-100 text-black text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200">
-                                    {{ post.category.name }}
-                                </a>
-                            {% endif %}
                         </div>
 
                         <!-- Content -->

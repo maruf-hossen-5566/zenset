@@ -23,26 +23,11 @@
                             {% endif %}
                             <!-- Gradient Overlay -->
                             <div class="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent md:hidden"></div>
-                            
-                            <!-- Mobile Category Badge -->
-                            {% if featured_post.category %}
-                                <a href="{% url 'blog:category' slug=featured_post.category.slug %}" 
-                                   class="md:hidden absolute top-4 left-4 bg-blue-100 text-blue-800 text-xs font-medium px-3 py-1.5 rounded-full border border-blue-200">
-                                    {{featured_post.category.name }}
-                                </a>
-                            {% endif %}
                         </div>
 
                         <!-- Content Container -->
                         <div class="relative p-6 md:p-12 flex flex-col justify-between">
                             <div class="space-y-4">
-                                <!-- Desktop Category Badge -->
-                                {% if featured_post.category %}
-                                    <a href="{% url 'blog:category' slug=featured_post.category.slug %}" 
-                                       class="hidden md:inline-flex bg-blue-100 text-blue-800 text-sm font-medium px-4 py-1.5 rounded-full border border-blue-200">
-                                        {{featured_post.category.name }}
-                                    </a>
-                                {% endif %}
 
                                 <!-- Title -->
                                 <h3 class="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 !leading-snug">
@@ -105,7 +90,7 @@
                                     {% endif %}
                                         alt="{{ post.title }}" 
                                         class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
-                                    <!-- Category Badge -->
+                                    
                                     {% if post.tag %}
                                         <a href="{% url 'blog:tag' slug=post.tag.slug %}" class="absolute top-4 left-4 bg-gray-100 text-black text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200">
                                             {{ post.tag.name }}

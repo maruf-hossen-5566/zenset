@@ -191,27 +191,6 @@
         </div>
     </div>
 
-    <!-- --- Popular Categories Section --- -->
-    <div class="bg-white border rounded-xl p-6">
-        <h3 class="text-xl font-semibold mb-4">Popular Categories</h3>
-        <div class="grid grid-cols-1 2xl:grid-cols-2 gap-4">
-            {% for category in popular_categories %}
-                <div class="p-4 border rounded-lg">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-lg font-medium">{{ category.name }}</span>
-                        <span class="text-sm text-gray-500">{{ category.count }} posts</span>
-                    </div>
-                    <div class="w-full bg-gray-200 rounded-full h-2.5">
-                        <div class="bg-blue-600 h-2.5 rounded-full" style="width: {{ category.percentage }}%"></div>
-                    </div>
-                    <span class="text-sm text-gray-500 mt-2 block">{{ category.percentage|floatformat:2 }}%</span>
-                </div>
-            {% empty %}
-                <p class="py-24 col-span-2 text-center text-sm text-gray-500">No popular categories found.</p>
-            {% endfor %}
-        </div>
-    </div>
-
     <!-- --- Top Performing Posts Card --- -->
     <div class="bg-white rounded-xl border p-6">
         <div class="flex justify-between items-center mb-4">

@@ -19,12 +19,6 @@
                     <img src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                         alt="{{ post.title }}" 
                         class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
-                    <!-- Category Badge -->
-                    {% if post.tag %}
-                        <a href="{% url 'blog:tag' slug=post.tag.slug %}" class="absolute top-4 left-4 bg-gray-100 text-black text-xs font-medium px-3 py-1.5 rounded-full border border-gray-200">
-                            {{ post.tag.name }}
-                        </a>
-                    {% endif %}
                 </div>
 
                 <!-- Content -->
