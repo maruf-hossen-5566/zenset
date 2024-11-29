@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load custom_filters %}
+{% load static %}
 
 
 {% block title %}{{post.title}}{% endblock title %}
@@ -51,7 +52,7 @@
                             {% if post.author.image %}
                                 <img loading="lazy" class="mr-4 w-16 h-16 rounded-full" src="{{ post.author.image.url }}" alt="Jese Leos">
                             {% else %}
-                                <img loading="lazy" class="mr-4 w-16 h-16 rounded-full" src="https://flowbite.com/docs/images/people/profile-picture-2.jpg" alt="Jese Leos">
+                                <img loading="lazy" class="mr-4 w-16 h-16 rounded-full" src="{% static 'images/author_image.jpg' %}" alt="Jese Leos">
                             {% endif %}
                             <div>
                                 <div class="w-max flex flex-row items-center">
@@ -79,7 +80,7 @@
                     {% else %}
                         <div class="relative">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-2xl "></div>
-                            <img loading="lazy" src="https://images.unsplash.com/photo-1710162734220-d543f0dff259?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="{{ post.title }}" class="border border-gray-200 cloudinary-post-image w-full rounded-2xl object-cover object-center aspect-video relative">
+                            <img loading="lazy" src="{% static 'images/post_image.jpg' %}" alt="Placeholder Image" class="border border-gray-200 cloudinary-post-image w-full rounded-2xl object-cover object-center aspect-video relative">
                         </div>
                     {% endif %}
                 </div>
@@ -582,8 +583,8 @@
                                 alt="{{ related_post.title }}" 
                                 class="w-full h-full object-cover">
                         {% else %}
-                            <img src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                                alt="{{ related_post.title }}" 
+                            <img src="{% static 'images/post_image.jpg' %}"
+                                alt="Placeholder Image" 
                                 class="w-full h-full object-cover">
                         {% endif %}
                     </div>
@@ -604,7 +605,7 @@
                                 {% if related_post.author.image %}
                                     <img class="w-6 h-6 rounded-full" src="{{ related_post.author.image.url }}" alt="{{ related_post.author.username }}">
                                 {% else %}
-                                    <img class="w-6 h-6 rounded-full" src="{{ related_post.author.username|r_img }}" alt="{{ related_post.author.username }}">
+                                    <img class="w-6 h-6 rounded-full" src="{% static 'images/user_image.jpg' %}" alt="Placeholder Image">
                                 {% endif %}
                             </div>
                             <div class="ml-2">

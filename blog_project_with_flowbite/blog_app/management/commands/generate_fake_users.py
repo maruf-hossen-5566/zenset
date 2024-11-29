@@ -7,14 +7,23 @@ import time
 
 User = get_user_model()
 
+
 class Command(BaseCommand):
-    help = 'Generates fake users'
+    """
+    Generate fake user accounts with random data.
+    Each user gets a unique username, email, full name and bio.
+    Default password for all users is: /'[p;.,l
+    """
+
+    help = "Generates fake users"
 
     def add_arguments(self, parser):
-        parser.add_argument('count', type=int, help='Indicates the number of users to be created')
+        parser.add_argument(
+            "count", type=int, help="Indicates the number of users to be created"
+        )
 
     def handle(self, *args, **kwargs):
-        count = kwargs['count']
+        count = kwargs["count"]
         fake = Faker()
 
         start_time = time.time()
@@ -35,16 +44,24 @@ class Command(BaseCommand):
                 if username not in usernames and email not in emails:
                     usernames.add(username)
                     emails.add(email)
-                    users.append(User(full_name=fake.name(), username=username, email=email, password=hashed_password, bio=bio))
+                    users.append(
+                        User(
+                            full_name=fake.name(),
+                            username=username,
+                            email=email,
+                            password=hashed_password,
+                            bio=bio,
+                        )
+                    )
                     break
-            
+
             # Calculate and display progress percentage
             progress = (i + 1) / count
             bar_length = 30
             filled_length = int(bar_length * progress)
-            bar = '=' * filled_length + '-' * (bar_length - filled_length)
+            bar = "=" * filled_length + "-" * (bar_length - filled_length)
             percentage = progress * 100
-            self.stdout.write(f"\r[{bar}] {percentage:.1f}% ({i+1}/{count})", ending='')
+            self.stdout.write(f"\r[{bar}] {percentage:.1f}% ({i+1}/{count})", ending="")
             self.stdout.flush()
 
         self.stdout.write("\n")  # New line after progress bar
@@ -61,7 +78,9 @@ class Command(BaseCommand):
 
         end_time = time.time()
         total_duration = end_time - start_time
-        self.stdout.write(self.style.SUCCESS(
-            f'Successfully created {created_count} fake users in {total_duration:.2f} seconds. '
-            f'Average time per user: {(total_duration/created_count):.4f} seconds'
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Successfully created {created_count} fake users in {total_duration:.2f} seconds. "
+                f"Average time per user: {(total_duration/created_count):.4f} seconds"
+            )
+        )

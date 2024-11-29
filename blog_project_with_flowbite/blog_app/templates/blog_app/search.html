@@ -31,9 +31,15 @@
                         <article class="group relative flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                             <!-- Image with overlay -->
                             <div class="relative h-64 flex flex-col overflow-hidden">
-                                <img src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                                    alt="{{ post.title }}" 
-                                    class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                {% if post.image %}
+                                    <img src="{{ post.image.url }}"
+                                        alt="{{ post.title }}" 
+                                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                {% else %}
+                                    <img src="{% static 'images/post_image.jpg' %}"
+                                        alt="Placeholder Image" 
+                                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                {% endif %}
                             </div>
 
                             <!-- Content -->
@@ -54,9 +60,15 @@
                                 <!-- Meta Info -->
                                 <div class="mt-auto flex items-center justify-between pt-4 border- border-gray-100">
                                     <div class="flex items-center gap-3">
-                                        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                                            alt="{{ post.author.full_name }}" 
-                                            class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                                        {% if post.author.image %}
+                                            <img src="{{ post.author.image.url }}"
+                                                alt="{{ post.author.full_name }}" 
+                                                class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                                        {% else %}
+                                            <img src="{% static 'images/user_image.jpg' %}"
+                                                alt="Placeholder Image" 
+                                                class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                                        {% endif %}
                                         <div>
                                             <p class="text-sm font-semibold text-gray-900">{{ post.author.full_name }}</p>
                                             <div class="flex items-center gap-2 text-sm text-gray-500">
@@ -112,7 +124,7 @@
                                         {% if user.image %}
                                             src="{{ user.image.url }}" 
                                         {% else %}
-                                            src="https://images.pexels.com/photos/14785828/pexels-photo-14785828.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
+                                            src="{% static 'images/user_image.jpg' %}" 
                                         {% endif %}
                                         alt="{{ user.full_name }}">
                                     <div>

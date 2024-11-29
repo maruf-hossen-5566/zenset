@@ -875,7 +875,7 @@
                                 </label>
                                 <select name="{{form.tags.name}}" id="{{form.tags.id_for_label}}" class="md:flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" multiple>
                                     {% with post_tag_ids=post.tags.all|map_ids %}
-                                        {% for tag in tags|slice:50 %}
+                                        {% for tag in tags %}
                                             <option class="py-2 px-2 rounded-sm " value="{{ tag.id }}" {% if tag.id in post_tag_ids %} selected {% endif %} >{{ tag.name }}</option>
                                         {% endfor %}
                                     {% endwith %}
@@ -887,7 +887,7 @@
                         <div class="mt-6 flex justify-end space-x-2">
                             <button type="button" data-drawer-hide="drawer-right-example" aria-controls="drawer-right-example" class="mr-auto px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg focus:outline-none hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100">Cancel</button>
 
-                            <button class="freeze-button create_form_submit_button inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300">Update</button>
+                            <button class="freeze-button create_form_submit_button inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:ring-blue-300">Confirm</button>
                         </div>
                     </div>
 

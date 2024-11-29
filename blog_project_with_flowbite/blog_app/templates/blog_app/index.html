@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load custom_filters %}
-
+{% load static %}
 {% block title %}Zenset - Your Blogging Home{% endblock %}
 
 {% block content %}
@@ -19,7 +19,7 @@
                             {% if featured_post.image %}
                                 <img src="{{ featured_post.image.url }}" alt="{{ featured_post.title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                             {% else %}
-                                <img src="https://images.unsplash.com/photo-1640960543409-dbe56ccc30e2?q=80&w=2080" alt="{{ featured_post.title }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                <img src="{% static 'images/f_post_image.jpg' %}" alt="Placeholder" class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                             {% endif %}
                             <!-- Gradient Overlay -->
                             <div class="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent md:hidden"></div>
@@ -54,9 +54,15 @@
 
                             <!-- Author Info -->
                             <div class="flex items-center gap-4 pt-8 mt-8 border-t border-gray-100">
-                                <img src="https://images.unsplash.com/photo-1640960543409-dbe56ccc30e2?q=80&w=2080" 
-                                     alt="{{ featured_post.author.full_name }}" 
-                                     class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm">
+                                {% if featured_post.author.profile_picture %}
+                                    <img src="{{ featured_post.author.profile_picture.url }}" 
+                                         alt="{{ featured_post.author.full_name }}" 
+                                         class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm">
+                                {% else %}
+                                    <img src="{% static 'images/user_image.jpg' %}" 
+                                         alt="Placeholder Image" 
+                                         class="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm">
+                                {% endif %}
                                 <div>
                                     <a href="{% url 'profile:profile' username=featured_post.author.username %}" class="hover:underline font-semibold text-gray-900">{{ featured_post.author.full_name }}</a>
                                     <div class="flex items-center gap-2 text-sm text-gray-500">
@@ -86,7 +92,7 @@
                                     {% if post.image %}
                                         src="{{ post.image.url }}"
                                     {% else %}
-                                        src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                        src="{% static 'images/post_image.jpg' %}"
                                     {% endif %}
                                         alt="{{ post.title }}" 
                                         class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
@@ -195,9 +201,15 @@
                                     <!-- Meta Info -->
                                     <div class="mt-auto flex items-start justify-between">
                                         <div class="flex items-start gap-3">
-                                            <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                                                alt="{{ user.full_name }}" 
-                                                class="w-10 h-10 rounded-full flex-shrink-0 object-cover border-2 border-white shadow-sm">
+                                            {% if user.profile_picture %}
+                                                <img src="{{ user.profile_picture.url }}"
+                                                    alt="{{ user.full_name }}" 
+                                                    class="w-10 h-10 rounded-full flex-shrink-0 object-cover border-2 border-white shadow-sm">
+                                            {% else %}
+                                                <img src="{% static 'images/user_image.jpg' %}"
+                                                    alt="{{ user.full_name }}" 
+                                                    class="w-10 h-10 rounded-full flex-shrink-0 object-cover border-2 border-white shadow-sm">
+                                            {% endif %}
                                             <div>
                                                 <a href="{% url 'profile:profile' username=user.username %}" class="text-sm hover:underline font-semibold text-gray-900">{{ user.full_name }}</a>
                                                 <span class="text-sm text-gray-500 line-clamp-2">{{ user.bio|truncatechars:100 }}</span>

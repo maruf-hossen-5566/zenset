@@ -8,6 +8,13 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
+    """
+    Generate random test notifications between users.
+    Creates notifications of different types (like, comment, reply, follow)
+    with random users as sender and receiver.
+    Default count is 10 notifications.
+    """
+
     help = "Generate random notifications for testing"
 
     def add_arguments(self, parser):
@@ -19,11 +26,8 @@ class Command(BaseCommand):
         count = options["count"]
 
         # Get all users and posts
-        # users = list(User.objects.all())
-        users = list(User.objects.exclude(id="feb5108a-3cad-456f-9f54-a346f8057072"))
-        user = User.objects.get(id="feb5108a-3cad-456f-9f54-a346f8057072")
-        # posts = list(Blog.objects.all())
-        posts = list(Blog.objects.filter(author__id="feb5108a-3cad-456f-9f54-a346f8057072"))
+        users = list(User.objects.all())
+        posts = list(Blog.objects.all())
 
         if not users:
             self.stdout.write(self.style.ERROR("No users found in the database"))
@@ -38,8 +42,7 @@ class Command(BaseCommand):
 
         for _ in range(count):
             # Randomly select users and post
-            # user = random.choice(users)
-            # user = user
+            user = random.choice(users)
             from_user = random.choice([u for u in users if u != user])  # Exclude self
             post = (
                 random.choice(posts) if random.random() > 0.2 else None

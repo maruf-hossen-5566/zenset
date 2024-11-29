@@ -14,8 +14,8 @@
                     <!-- Left Column: Profile Image -->
                     <div class="flex-shrink-0">
                         <img class="size-32 md:size-40 rounded-full border-4 border-gray-100 object-cover" 
-                             src="{% if user.image %}{{ user.image.url }}{% else %}https://images.unsplash.com/photo-1640951613773-54706e06851d?q=80&w=2080&auto=format&fit=crop{% endif %}" 
-                             alt="{{ user.username }}'s avatar">
+                             src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/user_image.jpg' %}{% endif %}" 
+                             alt="{{ user.full_name }}">
                     </div>
 
                     <!-- Right Column: Profile Details -->
@@ -135,7 +135,7 @@
                                 {% if post.image %}
                                     src="{{ post.image.url }}"
                                 {% else %}
-                                    src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                                    src="{% static 'images/post_image.jpg' %}"
                                 {% endif %}
                                 alt="{{ post.title }}" 
                                 class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
@@ -159,9 +159,15 @@
                             <!-- Meta Info -->
                             <div class="mt-auto flex items-center justify-between pt-4 border- border-gray-100">
                                 <div class="flex items-center gap-3">
-                                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                                        alt="{{ post.author.full_name }}" 
-                                        class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                                    {% if post.author.profile_picture %}
+                                        <img src="{{ post.author.profile_picture.url }}"
+                                            alt="{{ post.author.full_name }}" 
+                                            class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                                    {% else %}
+                                        <img src="{% static 'images/user_image.jpg' %}"
+                                            alt="{{ post.author.full_name }}" 
+                                            class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm">
+                                    {% endif %}
                                     <div>
                                         <p class="text-sm font-semibold text-gray-900">{{ post.author.full_name }}</p>
                                         <div class="flex items-center gap-2 text-sm text-gray-500">

@@ -75,7 +75,7 @@
                                 {% if post.image %}
                                     <img src="{{ post.image.url }}" class="w-10 h-10 flex-shrink-0 rounded-lg object-cover" alt="{{ post.title }}">
                                 {% else %}
-                                    <img src="https://images.unsplash.com/photo-1616046281657-378fa73464a5?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" class="w-10 h-10 flex-shrink-0 rounded-lg object-cover" alt="{{ post.title }}">
+                                    <img src="{% static 'images/post_image.jpg' %}" class="w-10 h-10 flex-shrink-0 rounded-lg object-cover" alt="Placeholder Image">
                                 {% endif %}
                                 <div>
                                     <a href="{% url 'blog:post_detail' post.author.username post.slug %}" class="font-medium text-gray-900 hover:underline line-clamp-2">{{ post.title }}</a>

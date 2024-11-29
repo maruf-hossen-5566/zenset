@@ -14,9 +14,15 @@
             <article class="group relative flex flex-col bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <!-- Image with overlay -->
                 <div class="relative h-64 flex flex-col overflow-hidden">
-                    <img src="https://images.unsplash.com/photo-1635776062043-223faf322554?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                        alt="{{ post.title }}" 
-                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                    {% if post.image %}
+                        <img src="{{ post.image.url }}"
+                            alt="{{ post.title }}" 
+                            class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                    {% else %}
+                        <img src="{% static 'images/post_image.jpg' %}"
+                            alt="Placeholder Image" 
+                            class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500">
+                    {% endif %}
                 </div>
 
                 <!-- Content -->

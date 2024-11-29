@@ -11,6 +11,12 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
+    """
+    Generate fake blog posts with random data.
+    Each blog gets a unique title, content, author, tags, and realistic timestamps.
+    Also generates random like and view counts for each blog.
+    """
+
     help = "Generates fake blogs"
 
     def add_arguments(self, parser):
@@ -25,9 +31,7 @@ class Command(BaseCommand):
         start_time = time.time()
 
         users = list(User.objects.all())
-        # users = User.objects.filter(id="233c724d-9ae4-4877-9211-a4c848a24467").first()
         tags = list(Tag.objects.all())
-        # tags = list(Tag.objects.filter(name__icontains="Technology"))
 
         if not users or not tags:
             self.stdout.write(
@@ -65,12 +69,6 @@ class Command(BaseCommand):
         all_dates.sort(reverse=True)
 
         for i in range(count):
-            # start_date = datetime(2017, 1, 1)
-            # end_date = datetime(2017, 12, 31)
-            # def random_datetime(start, end):
-            #     return start + (end - start) * random.random()
-
-            # random_date = random_datetime(start_date, end_date)
 
             title = " ".join(fake.sentences(nb=random.randint(1, 3)))
             blog = Blog.objects.create(
@@ -78,8 +76,6 @@ class Command(BaseCommand):
                 content=generate_content(),
                 slug=slugify(title),
                 author=random.choice(users),
-                # author=users,
-                # created_at=random_date,
                 created_at=fake.date_between(
                     start_date=datetime(2024, 1, 1), end_date=datetime.today()
                 ),
@@ -87,9 +83,6 @@ class Command(BaseCommand):
                 views_count=random.randint(99999, 999999),
             )
             blog.tags.set(random.sample(tags, random.randint(2, 5)))
-            # blog.tags.set(
-            #     tags,
-            # )
 
             # Calculate and display progress percentage
             progress = (i + 1) / count

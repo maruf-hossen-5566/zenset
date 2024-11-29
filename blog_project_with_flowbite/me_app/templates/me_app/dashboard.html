@@ -108,7 +108,7 @@
                                         {% if post.image %}
                                             <img src="{{ post.image.url }}" class="w-10 h-10 rounded-lg object-cover" alt="{{ post.title }}">
                                         {% else %}
-                                            <img src="https://images.unsplash.com/photo-1628258334105-2a0b3d6efee1?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3" class="w-10 h-10 rounded-lg flex-shrink-0 object-cover" alt="{{ post.title }}">
+                                            <img src="{% static 'images/post_image.jpg' %}" class="w-10 h-10 rounded-lg flex-shrink-0 object-cover" alt="Placeholder Image">
                                         {% endif %}
                                         <div class="flex flex-col">
                                             <a href="{% url 'blog:post_detail' post.author.username post.slug %}" class="font-medium text-gray-900 hover:underline line-clamp-2">{{ post.title }}</a>
@@ -192,7 +192,7 @@
     </div>
 
     <!-- --- Top Performing Posts Card --- -->
-    <div class="bg-white rounded-xl border p-6">
+    <div class="col-span-full bg-white rounded-xl border p-6">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-xl font-semibold">Top Performing Posts</h3>
             <span class="text-sm text-gray-500">Based on engagement</span>
@@ -223,20 +223,20 @@
                                 {{ post.views_count }}
                             </div>
                             
-                            <!-- Comments -->
-                            <div class="flex items-center text-sm text-gray-500">
-                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
-                                </svg>
-                                {{ post.comments_count }}
-                            </div>
-                            
                             <!-- Likes -->
                             <div class="flex items-center text-sm text-gray-500">
                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z"/>
                                 </svg>
                                 {{ post.likes_count }}
+                            </div>
+
+                            <!-- Comments -->
+                            <div class="flex items-center text-sm text-gray-500">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ post.comments_count }}
                             </div>
                         </div>
                     </div>

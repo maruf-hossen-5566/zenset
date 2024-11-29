@@ -769,10 +769,7 @@
                                 <p class="text-xs text-gray-500">Toggle to make your post public or keep it as a private draft. You can change this anytime.</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
-                                <input type="checkbox" value="on" class="sr-only peer"
-                                    name="{{form.is_published.name}}"
-                                    {% if not post.is_published %}checked{% endif %}
-                                    id="{{form.is_published.id_for_label}}">
+                                <input type="checkbox" value="on" class="sr-only peer" name="{{form.is_published.name}}" id="{{form.is_published.id_for_label}}" checked>
                                 <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-checked:bg-blue-600 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all">
                                 </div>
                             </label>
@@ -785,7 +782,7 @@
                             </label>
                             <select name="{{form.tags.name}}" id="{{form.tags.id_for_label}}" class="md:flex-1 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" multiple>
                                 {% for tag in tags %}
-                                    <option class="py-2 px-2 rounded-sm" value="{{ tag.id }}" {% if tag.id in post.tags.all|map_ids %} selected {% endif %}>{{ tag.name }}</option>
+                                    <option class="py-2 px-2 rounded-sm" value="{{ tag.id }}">{{ tag.name }}</option>
                                 {% endfor %}
                             </select>
                             <p class="mt-1 text-xs text-blue-600">Hold Ctrl (Windows) or Command (Mac) to select multiple tags</p>

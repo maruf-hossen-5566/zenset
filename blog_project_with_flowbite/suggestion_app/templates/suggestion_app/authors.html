@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load custom_filters %}
+{% load static %}
 
 {% block title %}Suggested Writers - Zenset{% endblock title %}
 
@@ -18,9 +19,15 @@
                     <!-- Meta Info -->
                     <div class="flex items-start justify-between">
                         <div class="flex items-start gap-3">
-                            <img src="{{ author.profile_picture.url|default:author.username|r_img }}"
-                                alt="{{ author.full_name }}" 
-                                class="w-10 h-10 rounded-full flex-shrink-0 object-cover border-2 border-white shadow-sm">
+                            {% if author.image %}
+                                <img src="{{ author.image.url }}"
+                                    alt="{{ author.full_name }}" 
+                                    class="w-10 h-10 rounded-full flex-shrink-0 object-cover border-2 border-white shadow-sm">
+                            {% else %}
+                                <img src="{% static 'images/user_image.jpg' %}"
+                                    alt="Placeholder Image" 
+                                    class="w-10 h-10 rounded-full flex-shrink-0 object-cover border-2 border-white shadow-sm">
+                            {% endif %}
                             <div>
                                 <a href="{% url 'profile:profile' username=author.username %}" class="text-sm hover:underline font-semibold text-gray-900">{{ author.full_name }}</a>
                                 <span class="text-sm text-gray-500 line-clamp-3">
