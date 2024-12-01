@@ -51,7 +51,7 @@ def authors(request):
             
         except Exception as error:
             messages.error(request, f"{error}")
-            return redirect(request.META.get("HTTP_REFERER", "blog:index") or reverse("blog:index")
+            context={}
         
 
     return render(request, "suggestion_app/authors.html", context)
@@ -86,7 +86,7 @@ def tags(request):
             cache.set(context, 60 * 15)
         except Exception as error:
             messages.error(request, f"{error}")
-            return redirect(request.META.get("HTTP_REFERER", "blog:index") or reverse("blog:index")
+            context={}
             
 
     return render(request, "suggestion_app/tags.html", context)
