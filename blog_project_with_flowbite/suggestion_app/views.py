@@ -26,28 +26,33 @@ def authors(request):
     context = cache.get(cache_key)
 
     if not context:
-        authors = User.objects.exclude(
-            Q(id=request.user.id) | Q(followers__follower=request.user)
-        ).only(
-            "id",
-            "full_name",
-            "bio",
-            "tagline",
-            "username",
-        )
-        # authors.order_by("-follower_count", "-posts_count")
-
-        paginator = Paginator(authors, 24)
-        page_obj = paginator.get_page(page_number)
-
-        context = {
-            "page_obj": list(page_obj),
-            "previous_page": (
-                page_obj.previous_page_number() if page_obj.has_previous() else None
-            ),
-            "next_page": page_obj.next_page_number() if page_obj.has_next() else None,
-        }
-        cache.set(cache_key, context, 60)
+        try:
+            authors = User.objects.exclude(
+                Q(id=request.user.id) | Q(followers__follower=request.user)
+            ).only(
+                "id",
+                "full_name",
+                "bio",
+                "tagline",
+                "username",
+            ).order_by("full_name")
+    
+            paginator = Paginator(authors, 24)
+            page_obj = paginator.get_page(page_number)
+    
+            context = {
+                "page_obj": list(page_obj),
+                "previous_page": (
+                    page_obj.previous_page_number() if page_obj.has_previous() else None
+                ),
+                "next_page": page_obj.next_page_number() if page_obj.has_next() else None,
+            }
+            cache.set(cache_key, context, 60 * 15)
+            
+        except Exception as error:
+            messages.error(request, f"{error}")
+            return redirect(request.META.get("HTTP_REFERER", "blog:index") or reverse("blog:index")
+        
 
     return render(request, "suggestion_app/authors.html", context)
 
@@ -63,19 +68,25 @@ def tags(request):
     context = cache.get(cache_key)
 
     if not context:
-        tags = Tag.objects.all().only("id", "name", "description", "slug")
-        tags.order_by("?")
-
-        # Pagination
-        paginator = Paginator(tags, 24)
-        page_obj = paginator.get_page(page_number)
-
-        context = {
-            "page_obj": list(page_obj),
-            "next_page": page_obj.next_page_number() if page_obj.has_next() else None,
-            "previous_page": (
-                page_obj.previous_page_number() if page_obj.has_previous() else None
-            ),
-        }
+        try:
+            tags = Tag.objects.all().only("id", "name", "description", "slug")
+            tags.order_by("?")
+    
+            # Pagination
+            paginator = Paginator(tags, 24)
+            page_obj = paginator.get_page(page_number)
+    
+            context = {
+                "page_obj": list(page_obj),
+                "next_page": page_obj.next_page_number() if page_obj.has_next() else None,
+                "previous_page": (
+                    page_obj.previous_page_number() if page_obj.has_previous() else None
+                ),
+            }
+            cache.set(context, 60 * 15)
+        except Exception as error:
+            messages.error(request, f"{error}")
+            return redirect(request.META.get("HTTP_REFERER", "blog:index") or reverse("blog:index")
+            
 
     return render(request, "suggestion_app/tags.html", context)
