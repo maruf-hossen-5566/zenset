@@ -38,9 +38,9 @@
                     </div>
 
                     <!-- Follow Button -->
-                    <button type="button" class="inline-block text-xs font-medium px-3 py-1.5 rounded-full {% if tag in user.following_tags.all %}bg-gray-100 text-gray-900 hover:bg-gray-200{% else %}bg-blue-600 text-white hover:bg-blue-700{% endif %}">
+                    <a href="{% url 'blog:follow_tag' tag.id %}" type="button" class="inline-block text-xs font-medium px-3 py-1.5 rounded-full {% if tag in user.following_tags.all %}bg-gray-100 text-gray-900 hover:bg-gray-200{% else %}bg-blue-600 text-white hover:bg-blue-700{% endif %}">
                         {% if tag in user.following_tags.all %}Following{% else %}Follow{% endif %}
-                    </button>
+                    </a>
                 </div>
             </article>
         {% empty %}

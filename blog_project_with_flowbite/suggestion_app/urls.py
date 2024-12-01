@@ -5,6 +5,6 @@ app_name = "suggestion"
 
 urlpatterns = [
     path("", views.index, name="index"),
-    path("writers/", views.authors, name="writers"),
+    path("authors/", views.authors, name="writers"),
     path("tags/", views.tags, name="tags"),
 ]
