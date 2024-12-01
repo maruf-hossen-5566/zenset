@@ -27,15 +27,20 @@ def authors(request):
 
     if not context:
         try:
-            authors = User.objects.exclude(
-                Q(id=request.user.id) | Q(followers__follower=request.user)
-            ).only(
+            authors = User.objects.all().only(
                 "id",
                 "full_name",
                 "bio",
                 "tagline",
                 "username",
-            ).order_by("full_name")
+            )
+
+            if request.user.is_authenticated:
+                authors = auhtors.exclude(
+                    Q(id=request.user.id) | Q(followers__follower=request.user)
+                )
+
+            authors = authors.order_by("full_name")                
     
             paginator = Paginator(authors, 24)
             page_obj = paginator.get_page(page_number)
