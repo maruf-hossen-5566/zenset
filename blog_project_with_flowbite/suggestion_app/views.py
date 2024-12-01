@@ -49,13 +49,13 @@ def authors(request):
 
             authors = authors.order_by("full_name")
 
+            paginator = Paginator(authors, 24)
+            page_obj = paginator.get_page(page_number)
+
         except Exception as e:
             logger.error(f"Error fetching authors: {e}")
             messages.error(request, "Error fetching authors. Please try again later.")
             return redirect(request.META.get("HTTP_REFERER", "blog:index"))
-
-        paginator = Paginator(authors, 24)
-        page_obj = paginator.get_page(page_number)
 
         context = {
             "page_obj": list(page_obj),
