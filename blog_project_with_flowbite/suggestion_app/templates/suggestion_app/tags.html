@@ -29,7 +29,7 @@
 
                     <!-- Tag Content -->
                     <div class="flex flex-col flex-grow">
-                        <h2 class="text-base font-semibold text-gray-900 mb-1">{{ tag.name }}</h2>
+                        <a href="{% url 'blog:tag_detail' tag.slug %}" class="text-base font-semibold text-gray-900 mb-1">{{ tag.name }}</a>
                         <div class="flex flex-col gap-1">
                             <p class="text-sm text-gray-500 line-clamp-2">{{ tag.description|default:"No description available"|truncatechars:100 }}</p>
                             {% comment %} <span class="text-xs text-gray-400">{{ tag.posts.count }} post{{ tag.posts.count|pluralize }}</span> {% endcomment %}

@@ -682,7 +682,6 @@ def change_post_status(request, id):
 
 
 # --- TAG
-@user_login_required(redirect_url="blog:index")
 @require_GET
 @transaction.atomic
 def tag_detail(request, slug):
@@ -740,7 +739,7 @@ def tag_detail(request, slug):
     return render(request, "blog_app/tags_detail.html", context)
 
 
-@user_login_required(redirect_url="blog:index")
+@user_login_required()
 @require_GET
 @transaction.atomic
 def follow_tag(request, id):
